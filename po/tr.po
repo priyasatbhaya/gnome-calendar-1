@@ -1,35 +1,34 @@
-# Spanish translation for gnome-calendar.
-# Copyright (C) 2012 gnome-calendar's COPYRIGHT HOLDER
+# Turkish translation for gnome-calendar.
+# Copyright (C) 2015 gnome-calendar's COPYRIGHT HOLDER
 # This file is distributed under the same license as the gnome-calendar package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# Daniel Mustieles <daniel.mustieles@gmail.com>, 2012, 2013, 2015.
+# Muhammet Kara <muhammetk@gmail.com>, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: gnome-calendar master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=gnome-"
 "calendar&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-02-06 14:25+0000\n"
-"PO-Revision-Date: 2015-02-09 18:51+0100\n"
-"Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
-"Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
-"Language: es\n"
+"POT-Creation-Date: 2015-02-14 07:06+0000\n"
+"PO-Revision-Date: 2015-02-14 10:52+0200\n"
+"Last-Translator: Muhammet Kara <muhammetk@gmail.com>\n"
+"Language-Team: Turkish <gnome-turk@gnome.org>\n"
+"Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Gtranslator 2.91.6\n"
 
 #: ../data/appdata/org.gnome.Calendar.appdata.xml.in.h:1
 #: ../data/org.gnome.Calendar.desktop.in.in.h:1
 #: ../data/org.gnome.Calendar.search-provider.ini.in.in.h:1
-#: ../data/ui/window.ui.h:3 ../src/gcal-application.c:560
+#: ../data/ui/window.ui.h:3 ../src/gcal-application.c:513
 msgid "Calendar"
-msgstr "Calendario"
+msgstr "Takvim"
 
 #: ../data/appdata/org.gnome.Calendar.appdata.xml.in.h:2
 msgid "Calendar for GNOME"
-msgstr "Calendario para GNOME"
+msgstr "GNOME için Takvim"
 
 #: ../data/appdata/org.gnome.Calendar.appdata.xml.in.h:3
 msgid ""
@@ -37,10 +36,6 @@ msgid ""
 "perfectly fit the GNOME desktop. By reusing the components which the GNOME "
 "desktop is build on, Calendar nicely integrates with the GNOME ecosystem."
 msgstr ""
-"Calendario de GNOME es una aplicación de calendario bonita y sencilla "
-"diseñada para ajustarse perfectamente al escritorio GNOME. Al reutilizar "
-"componentes con los que se ha construido el escritorio GNOME, Calendario se "
-"integra muy bien con el entorno de GNOME."
 
 #: ../data/appdata/org.gnome.Calendar.appdata.xml.in.h:4
 msgid ""
@@ -48,129 +43,126 @@ msgid ""
 "centred usability. No excess, no lacks. You'll feel comfortable using "
 "Calendar, like you've been using it for ages!"
 msgstr ""
-"Se ha tratado de buscar el equilibrio entre características bien elaboradas "
-"y la usabilidad centrada en el usuario. No hay excesos ni carencias. Se "
-"sentirá cómodo usando Calendario, como si llevara años usándolo."
 
 #: ../data/appdata/org.gnome.Calendar.appdata.xml.in.h:5
 msgid "Search for events"
-msgstr "Buscar eventos"
+msgstr ""
 
 #: ../data/appdata/org.gnome.Calendar.appdata.xml.in.h:6
 msgid "Calendar management"
-msgstr "Gestión del calendario"
+msgstr "Takvim yönetimi"
 
 #: ../data/org.gnome.Calendar.desktop.in.in.h:2
 msgid "Access, and manage calendar"
-msgstr "Acceder y gestionar calendarios"
+msgstr ""
 
 #: ../data/org.gnome.Calendar.desktop.in.in.h:3
 msgid "Calendar;Event;Reminder;"
-msgstr "Calendario;Evento;Recordatorio;"
+msgstr "Takvim;Olay;Hatırlatıcı;"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:1
 msgid "Window maximized"
-msgstr "Ventana maximizada"
+msgstr "Pencere ekranı kapladı"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:2
 msgid "Window maximized state"
-msgstr "Estado maximizado de la ventana"
+msgstr "Pencere ekranı kaplamış durumda"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:3
 msgid "Window size"
-msgstr "Tamaño de la ventana"
+msgstr "Pencere boyutu"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:4
 msgid "Window size (width and height)."
-msgstr "Tamaño de la ventana (anchura y altura)."
+msgstr "Pencere boyutu (genişlik ve yükseklik)."
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:5
 msgid "Window position"
-msgstr "Posición de la ventana"
+msgstr "Pencere konumu"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:6
 msgid "Window position (x and y)."
-msgstr "Posición de la ventana (X e Y)."
+msgstr "Pencere konumu (x ve y)."
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:7
 msgid "Type of the active view"
-msgstr "Tipo de vista activa"
+msgstr ""
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:8
 msgid "Type of the active window view, default value is: monthly view"
-msgstr "Tipo de vista activa; el tipo predeterminado es: vista mensual"
+msgstr ""
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:9
 msgid "List of the disabled sources"
-msgstr "Lista de recursos desactivados"
+msgstr ""
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:10
 msgid "Sources disabled last time Calendar ran"
-msgstr "Fuentes desactivadas la última vez que se ejecutó Calendario"
+msgstr ""
 
 #: ../data/ui/edit-dialog.ui.h:1
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr "Vazgeç"
 
 #: ../data/ui/edit-dialog.ui.h:2 ../src/gcal-edit-dialog.c:634
 msgid "Done"
-msgstr "Hecho"
+msgstr "Tamam"
 
 #: ../data/ui/edit-dialog.ui.h:3
 msgid "Title"
-msgstr "Título"
+msgstr "Başlık"
 
 #: ../data/ui/edit-dialog.ui.h:4
 msgid "Starts"
-msgstr "Empieza"
+msgstr "Başlama"
 
 #: ../data/ui/edit-dialog.ui.h:5
 msgid "Ends"
-msgstr "Termina"
+msgstr "Bitiş"
 
 #: ../data/ui/edit-dialog.ui.h:6
 msgid "Notes"
-msgstr "Notas"
+msgstr "Notlar"
 
 #: ../data/ui/edit-dialog.ui.h:7
 msgid "Location"
-msgstr "Ubicación"
+msgstr "Konum"
 
 #: ../data/ui/edit-dialog.ui.h:8 ../src/gcal-search-view.c:387
 msgid "All day"
-msgstr "Todo el día"
+msgstr "Bütün gün"
 
 #: ../data/ui/edit-dialog.ui.h:9
 msgid "Delete event"
-msgstr "Eliminar evento"
+msgstr "Olayı sil"
 
 #: ../data/ui/menus.ui.h:1
 msgid "Add Eve_nt…"
-msgstr "Añadir eve_nto…"
+msgstr "O_lay Ekle…"
 
 #: ../data/ui/menus.ui.h:2
 msgid "_Search…"
-msgstr "_Buscar…"
+msgstr "_Ara…"
 
 #: ../data/ui/menus.ui.h:3
 msgid "_About"
-msgstr "_Acerca de"
+msgstr "_Hakkında"
 
 #: ../data/ui/menus.ui.h:4
 msgid "_Quit"
-msgstr "_Salir"
+msgstr "_Çıkış"
 
 #: ../data/ui/menus.ui.h:5
 msgid "_Synchronize"
-msgstr "_Sincronizar"
+msgstr "_Eşzamanla"
 
 #: ../data/ui/search-view.ui.h:1
 msgid "No results found"
-msgstr "No se encontraron resultados."
+msgstr "Hiçbir sonuç bulunamadı"
 
 #: ../data/ui/search-view.ui.h:2
 msgid "Use the entry above to search for events."
-msgstr "Use la entrada anterior para buscar eventos."
+msgstr ""
 
 #: ../data/ui/time-selector.ui.h:1
 msgid "00:00"
@@ -183,94 +175,93 @@ msgstr ":"
 #: ../data/ui/time-selector.ui.h:3 ../src/gcal-search-view.c:381
 #: ../src/gcal-week-view.c:417
 msgid "AM"
-msgstr "AM"
+msgstr "ÖÖ"
 
 #: ../data/ui/time-selector.ui.h:4 ../src/gcal-search-view.c:381
 #: ../src/gcal-week-view.c:417
 msgid "PM"
-msgstr "PM"
+msgstr "ÖS"
 
 #: ../data/ui/window.ui.h:1 ../src/gcal-date-selector.c:305
 msgid "Month"
-msgstr "Mes"
+msgstr "Ay"
 
 #: ../data/ui/window.ui.h:2 ../src/gcal-date-selector.c:307
 msgid "Year"
-msgstr "Año"
+msgstr "Yıl"
 
 #: ../data/ui/window.ui.h:4 ../data/ui/year-view.ui.h:1
 #: ../src/gcal-year-view.c:232 ../src/gcal-year-view.c:380
 msgid "Today"
-msgstr "Hoy"
+msgstr "Bugün"
 
 #: ../data/ui/window.ui.h:5
 msgid "Create"
-msgstr "Crear"
+msgstr "Oluştur"
 
 #: ../data/ui/window.ui.h:6
 msgid "More Details"
-msgstr "Más detalles"
+msgstr "Daha Fazla Ayrıntı"
 
 #: ../data/ui/year-view.ui.h:2
 msgid "No events"
-msgstr "No hay eventos"
+msgstr "Olay yok"
 
 #: ../data/ui/year-view.ui.h:3 ../src/gcal-month-view.c:604
 msgid "Add Event…"
-msgstr "Añadir evento…"
+msgstr "Olay Ekle…"
 
-#: ../src/gcal-application.c:105
+#: ../src/gcal-application.c:102
 msgid "Display version number"
-msgstr "Mostrar el número de versión"
+msgstr "Sürüm numarasını göster"
 
-#: ../src/gcal-application.c:110
+#: ../src/gcal-application.c:107
 msgid "Open calendar on the passed date"
-msgstr "Abrir el calendario en una fecha pasada"
+msgstr ""
 
-#: ../src/gcal-application.c:115
-#| msgid "Open calendar on the passed date"
+#: ../src/gcal-application.c:112
 msgid "Open calendar showing the passed event"
-msgstr "Abrir el calendario en una evento pasada"
+msgstr ""
 
-#: ../src/gcal-application.c:381
+#: ../src/gcal-application.c:334
 msgid "- Calendar management"
-msgstr "- Gestión del calendario"
+msgstr "- Takvim yönetimi"
 
-#: ../src/gcal-application.c:548
+#: ../src/gcal-application.c:501
 msgid "Copyright © %Id The Calendar authors"
-msgstr "Copyright © %Id Los autores de Calendario"
+msgstr ""
 
-#: ../src/gcal-application.c:554
+#: ../src/gcal-application.c:507
 msgid "Copyright © %Id–%Id The Calendar authors"
-msgstr "Copyright © %Id–%Id Los autores de Calendario"
+msgstr ""
 
-#: ../src/gcal-application.c:567
+#: ../src/gcal-application.c:520
 msgid "translator-credits"
-msgstr "Daniel Mustieles <daniel.mustieles@gmail.com>, 2012 - 2015"
+msgstr "Muhammet Kara <muhammetk@gmail.com>"
 
 #: ../src/gcal-date-selector.c:303
 msgid "Day"
-msgstr "Día"
+msgstr "Gün"
 
 #: ../src/gcal-edit-dialog.c:634
 msgid "Save"
-msgstr "Guardar"
+msgstr "Kaydet"
 
 #: ../src/gcal-edit-dialog.c:818
 msgid "Unnamed event"
-msgstr "Evento sin nombre"
+msgstr "Adsız olay"
 
 #: ../src/gcal-month-view.c:825
 msgid "Other events"
-msgstr "Otros eventos"
+msgstr "Diğer olaylar"
 
 #. TODO: Warning in some languages this string can be too long and may overlap wit the number
-#: ../src/gcal-month-view.c:1177
+#: ../src/gcal-month-view.c:1196
 #, c-format
 msgid "Other event"
 msgid_plural "Other %d events"
-msgstr[0] "Otro evento"
-msgstr[1] "Otros %d eventos"
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/gcal-search-view.c:380
 #, c-format
@@ -280,110 +271,34 @@ msgstr "%.2d:%.2d %s"
 #: ../src/gcal-time-selector.c:96
 #, c-format
 msgid "%.2d:%.2d AM"
-msgstr "%.2d:%.2d AM"
+msgstr "%.2d:%.2d ÖÖ"
 
 #: ../src/gcal-time-selector.c:98
 #, c-format
 msgid "%.2d:%.2d PM"
-msgstr "%.2d:%.2d PM"
+msgstr "%.2d:%.2d ÖS"
 
 #: ../src/gcal-week-view.c:420 ../src/gcal-week-view.c:493
 msgid "Midnight"
-msgstr "Medianoche"
+msgstr "Gece Yarısı"
 
 #: ../src/gcal-week-view.c:422 ../src/gcal-week-view.c:496
 msgid "Noon"
-msgstr "MEdiodía"
+msgstr ""
 
 #: ../src/gcal-week-view.c:499
 msgid "00:00 PM"
-msgstr "00:00 PM"
+msgstr ""
 
 #: ../src/gcal-window.c:632
 #, c-format
 msgid "New Event on %s"
-msgstr "Evento nuevo en %s"
+msgstr ""
 
 #: ../src/gcal-window.c:1025
 msgid "Event deleted"
-msgstr "Evento eliminado"
+msgstr "Olay silindi"
 
 #: ../src/gcal-window.c:1026
 msgid "Undo"
-msgstr "Deshacer"
-
-#~| msgid "New Event"
-#~ msgid "_New Event"
-#~ msgstr "Evento _nuevo"
-
-#~ msgid "Features:"
-#~ msgstr "Características:"
-
-#~ msgid "Week"
-#~ msgstr "Semana"
-
-#~ msgid "Unable to initialize GtkClutter"
-#~ msgstr "No se pudo inicializar GtkClutter"
-
-#~ msgid "Weeks"
-#~ msgstr "Semanas"
-
-#~ msgid "Months"
-#~ msgstr "Meses"
-
-#~ msgid "Years"
-#~ msgstr "Años"
-
-#~ msgid "View as"
-#~ msgstr "Ver como"
-
-#~ msgid "Change the date"
-#~ msgstr "Cambiar la fecha"
-
-#~ msgid "Event Details"
-#~ msgstr "Detalles del evento"
-
-#~ msgid "What (e.g. Alien Invasion)"
-#~ msgstr "Qué (ej. invasión alienígena)"
-
-#~ msgid "New Event from %s to %s"
-#~ msgstr "Evento nuevo de %s a %s"
-
-#~ msgid "Notification"
-#~ msgstr "Notificación"
-
-#~ msgid "Email"
-#~ msgstr "Correo-e"
-
-#~ msgid "days"
-#~ msgstr "días"
-
-#~ msgid "weeks"
-#~ msgstr "semanas"
-
-#~ msgid "hours"
-#~ msgstr "horas"
-
-#~ msgid "minutes"
-#~ msgstr "minutos"
-
-#~ msgid "before"
-#~ msgstr "antes del"
-
-#~ msgid "WWW 99 - WWW 99"
-#~ msgstr "WWW 99 - WWW 99"
-
-#~ msgid "Change the time"
-#~ msgstr "Cambiar la hora"
-
-#~ msgid "List"
-#~ msgstr "Lista"
-
-#~ msgid "Back"
-#~ msgstr "Atrás"
-
-#~ msgid "Edit"
-#~ msgstr "Editar"
-
-#~ msgid "Year %d"
-#~ msgstr "Año %d"
+msgstr "Geri Al"

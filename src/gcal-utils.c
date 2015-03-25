@@ -397,6 +397,9 @@ gint
 icaltime_compare_date (const icaltimetype *date1,
                        const icaltimetype *date2)
 {
+  if (date2 == NULL)
+    return 0;
+
   if (date1->year < date2->year)
     return -1;
   else if (date1->year > date2->year)
@@ -404,6 +407,43 @@ icaltime_compare_date (const icaltimetype *date1,
   else
     return time_day_of_year (date1->day, date1->month - 1, date1->year) -
            time_day_of_year (date2->day, date2->month - 1, date2->year);
+}
+
+gint
+icaltime_compare_with_current (const icaltimetype *date1,
+                               const icaltimetype *date2,
+                               time_t             *current_time_t)
+{
+  gint result;
+
+  time_t start1, start2, diff1, diff2;
+  start1 = icaltime_as_timet_with_zone (*date1, date1->zone != NULL ? date1->zone : e_cal_util_get_system_timezone ());
+  start2 = icaltime_as_timet_with_zone (*date2, date2->zone != NULL ? date2->zone : e_cal_util_get_system_timezone ());
+  diff1 = start1 - *current_time_t;
+  diff2 = start2 - *current_time_t;
+
+  if (diff1 == diff2)
+    {
+      result = 0;
+    }
+  else
+    {
+      if (diff1 == 0)
+        result = -1;
+      else if (diff2 == 0)
+        result = 1;
+
+      if (diff1 > 0 && diff2 < 0)
+        result = -1;
+      else if (diff2 > 0 && diff1 < 0)
+        result = 1;
+      else if (diff1 < 0 && diff2 < 0)
+        result = ABS (diff1) - ABS (diff2);
+      else if (diff1 > 0 && diff2 > 0)
+        result = diff1 - diff2;
+    }
+
+  return result;
 }
 
 /* Function to do a last minute fixup of the AM/PM stuff if the locale

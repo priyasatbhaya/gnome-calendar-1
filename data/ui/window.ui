@@ -163,7 +163,7 @@
                         <property name="receives_default">True</property>
                         <property name="relief">none</property>
                         <property name="focus_on_click">False</property>
-                        <signal name="clicked" handler="hide_notification" object="GcalWindow" swapped="no"/>
+                        <signal name="clicked" handler="hide_notification" object="GcalWindow" swapped="yes"/>
                         <child>
                           <object class="GtkImage">
                             <property name="visible">True</property>
@@ -275,9 +275,9 @@
             <property name="receives_default">True</property>
             <child>
               <object class="GtkImage" id="menu_image">
+                <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="icon_name">open-menu-symbolic</property>
-                <property name="icon_size">1</property>
               </object>
             </child>
           </object>

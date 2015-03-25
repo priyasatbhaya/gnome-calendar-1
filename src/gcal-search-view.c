@@ -46,6 +46,7 @@ typedef struct
   gint            num_results;
   gchar          *field;
   gchar          *query;
+  time_t          current_utc_date;
 
   /* property */
   icaltimetype   *date;
@@ -215,9 +216,7 @@ sort_by_event (GtkListBoxRow *row1,
 {
   GcalSearchViewPrivate *priv;
   GcalEventData *ev1, *ev2;
-  ECalComponentText summary1, summary2;
   ECalComponentDateTime date1, date2;
-  gchar *down1, *down2;
   gint result;
 
   priv = gcal_search_view_get_instance_private (GCAL_SEARCH_VIEW (user_data));
@@ -232,23 +231,10 @@ sort_by_event (GtkListBoxRow *row1,
   e_cal_component_get_dtstart (ev1->event_component, &date1);
   e_cal_component_get_dtstart (ev2->event_component, &date2);
 
-  /* Second, compare by their dates */
-  result = icaltime_compare (*date1.value, *date2.value);
+  result = icaltime_compare_with_current (date1.value, date2.value, &(priv->current_utc_date));
+
   e_cal_component_free_datetime (&date1);
   e_cal_component_free_datetime (&date2);
-
-  if (result != 0)
-    return -1 * result;
-
-  e_cal_component_get_summary (ev1->event_component, &summary1);
-  e_cal_component_get_summary (ev2->event_component, &summary2);
-  down1 = g_utf8_strdown (summary1.value, -1);
-  down2 = g_utf8_strdown (summary2.value, -1);
-
-  /* First, by their names */
-  result = g_strcmp0 (down1, down2);
-  g_free (down1);
-  g_free (down2);
 
   return result;
 }
@@ -289,7 +275,8 @@ free_row_data (RowEventData *data)
 {
   g_assert_nonnull (data);
 
-  gtk_widget_destroy (GTK_WIDGET (data->row));
+  if (data->row != NULL)
+    gtk_widget_destroy (GTK_WIDGET (data->row));
 
   g_object_unref (data->event_data->event_component);
 
@@ -594,6 +581,9 @@ gcal_search_view_finalize (GObject       *object)
   if (priv->date != NULL)
     g_free (priv->date);
 
+  g_hash_table_destroy (priv->row_to_event);
+  g_hash_table_destroy (priv->events);
+
   /* Chain up to parent's finalize() method. */
   G_OBJECT_CLASS (gcal_search_view_parent_class)->finalize (object);
 }
@@ -630,6 +620,7 @@ gcal_search_view_component_added (ECalDataModelSubscriber *subscriber,
   row_data = g_new0 (RowEventData, 1);
   row_data->event_data = data;
   row_data->row = make_row_for_event_data (GCAL_SEARCH_VIEW (subscriber), data);
+  g_signal_connect (row_data->row, "destroy", G_CALLBACK (gtk_widget_destroyed), &(row_data->row));
 
   g_hash_table_insert (priv->row_to_event, row_data->row, data);
   g_hash_table_insert (priv->events, uuid, row_data);
@@ -783,16 +774,17 @@ gcal_search_view_search (GcalSearchView *view,
   /* Only perform search on valid non-empty strings */
   if (query && g_utf8_strlen (query, -1) > 0)
     {
-      gchar *search_query;
-
-      search_query = g_strdup_printf ("(contains? \"%s\" \"%s\")", field != NULL? field : "summary",
-                                      query != NULL? query : "");
+      gchar *search_query = g_strdup_printf ("(contains? \"%s\" \"%s\")", field != NULL? field : "summary",
+                                             query != NULL? query : "");
 
       if (!priv->subscribed)
       {
         gcal_manager_set_search_subscriber (priv->manager, E_CAL_DATA_MODEL_SUBSCRIBER (view), 0, 0);
         priv->subscribed = TRUE;
       }
+
+      /* update internal current time_t */
+      priv->current_utc_date = time (NULL);
 
       gcal_manager_set_query (priv->manager, search_query);
       gtk_widget_show (priv->listbox);

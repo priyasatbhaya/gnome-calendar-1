@@ -772,6 +772,7 @@ gcal_month_view_size_allocate (GtkWidget     *widget,
 
   gint i, j, sw, shown_rows;
 
+  GtkBorder margin;
   gint padding_bottom, font_height;
   PangoLayout *layout;
   PangoFontDescription *font_desc;
@@ -784,7 +785,7 @@ gcal_month_view_size_allocate (GtkWidget     *widget,
   GtkAllocation child_allocation;
   gint natural_height;
 
-  GList *widgets, *l, *aux, *l2 = NULL;
+  GList *widgets, *aux, *l = NULL;
   GHashTableIter iter;
   gpointer key, value;
 
@@ -801,16 +802,10 @@ gcal_month_view_size_allocate (GtkWidget     *widget,
   /* remove every widget' parts, but the master widget */
   widgets = g_hash_table_get_values (ppriv->children);
   for (aux = widgets; aux != NULL; aux = g_list_next (aux))
-    {
-      l = g_list_next ((GList*) aux->data);
-      for (; l != NULL; l = g_list_next (l))
-        l2 = g_list_append (l2, l->data);
-    }
+    l = g_list_concat (l, g_list_copy (g_list_next (aux->data)));
   g_list_free (widgets);
 
-  for (aux = l2; aux != NULL; aux = g_list_next (aux))
-    gtk_widget_destroy ((GtkWidget*) aux->data);
-  g_list_free (l2);
+  g_list_free_full (l, (GDestroyNotify) gtk_widget_destroy);
 
   /* clean overflow information */
   g_hash_table_remove_all (ppriv->overflow_cells);
@@ -844,7 +839,7 @@ gcal_month_view_size_allocate (GtkWidget     *widget,
   for (l = ppriv->multi_cell_children; l != NULL; l = g_list_next (l))
     {
       gint first_cell, last_cell, first_row, last_row, start, end;
-      gboolean visible;
+      gboolean visible, start_before = TRUE, end_after = TRUE;
 
       const icaltimetype *date;
       GArray *cells, *lengths;
@@ -860,7 +855,10 @@ gcal_month_view_size_allocate (GtkWidget     *widget,
       j = 1;
       date = gcal_event_widget_peek_start_date (GCAL_EVENT_WIDGET (child_widget));
       if (date->month == priv->date->month)
-        j = date->day;
+        {
+          j = date->day;
+          start_before = FALSE;
+        }
       j += priv->days_delay;
       first_cell = 7 * ((j - 1) / 7)+ 6 * priv->k + sw * ((j - 1) % 7);
 
@@ -869,12 +867,18 @@ gcal_month_view_size_allocate (GtkWidget     *widget,
       if (gcal_event_widget_get_all_day (GCAL_EVENT_WIDGET (child_widget)))
         {
           if (date->month == priv->date->month)
-            j = date->day - 1;
+            {
+              j = date->day - 1;
+              end_after = FALSE;
+            }
         }
       else
         {
           if (date->month == priv->date->month)
-            j = date->day;
+            {
+              j = date->day;
+              end_after = FALSE;
+            }
         }
       j += priv->days_delay;
       last_cell = 7 * ((j - 1) / 7)+ 6 * priv->k + sw * ((j - 1) % 7);
@@ -908,13 +912,6 @@ gcal_month_view_size_allocate (GtkWidget     *widget,
               gint cell_idx = g_array_index (cells, gint, i);
               gint row = cell_idx / 7;
               gint column = cell_idx % 7;
-              pos_x = cell_width * column;
-              pos_y = cell_height * (row + first_row_gap) + start_grid_y;
-
-              child_allocation.x = pos_x;
-              child_allocation.y = pos_y + vertical_cell_space - size_left[cell_idx];
-              child_allocation.width = cell_width * g_array_index (lengths, gint, i);
-              child_allocation.height = natural_height;
 
               if (i != 0)
                 {
@@ -923,7 +920,7 @@ gcal_month_view_size_allocate (GtkWidget     *widget,
                   _gcal_subscriber_view_setup_child (GCAL_SUBSCRIBER_VIEW (widget), child_widget);
                   gtk_widget_show (child_widget);
 
-                  if (i != cells->len - 1)
+                  if (i != cells->len - 1 || end_after)
                     gtk_style_context_add_class (gtk_widget_get_style_context (child_widget), "slanted");
                   else
                     gtk_style_context_add_class (gtk_widget_get_style_context (child_widget), "slanted-start");
@@ -931,17 +928,39 @@ gcal_month_view_size_allocate (GtkWidget     *widget,
                   aux = g_hash_table_lookup (ppriv->children, uuid);
                   aux = g_list_append (aux, child_widget);
                 }
+              else if (i == 0 && cells->len == 1)
+                {
+                  if (start_before)
+                    gtk_style_context_add_class (gtk_widget_get_style_context (child_widget), "slanted-start");
+                  if (end_after)
+                    gtk_style_context_add_class (gtk_widget_get_style_context (child_widget), "slanted-end");
+                }
               else if (i != cells->len - 1)
                 {
-                  gtk_style_context_add_class (gtk_widget_get_style_context (child_widget), "slanted-end");
+                  if (start_before)
+                    gtk_style_context_add_class (gtk_widget_get_style_context (child_widget), "slanted");
+                  else
+                    gtk_style_context_add_class (gtk_widget_get_style_context (child_widget), "slanted-end");
                 }
+
+              gtk_style_context_get_margin (gtk_widget_get_style_context (child_widget),
+                                            gtk_widget_get_state_flags (child_widget),
+                                            &margin);
+
+              pos_x = cell_width * column + margin.left;
+              pos_y = cell_height * (row + first_row_gap) + start_grid_y + margin.top;
+
+              child_allocation.x = pos_x;
+              child_allocation.y = pos_y + vertical_cell_space - size_left[cell_idx];
+              child_allocation.width = cell_width * g_array_index (lengths, gint, i) - (margin.left + margin.right);
+              child_allocation.height = natural_height;
 
               gtk_widget_size_allocate (child_widget, &child_allocation);
               g_hash_table_remove (ppriv->hidden_as_overflow, uuid);
 
               /* update size_left */
               for (j = 0; j < g_array_index (lengths, gint, i); j++)
-                size_left[cell_idx + j] -= natural_height;
+                size_left[cell_idx + j] -= natural_height + margin.top + margin.bottom;
             }
         }
       else
@@ -986,18 +1005,22 @@ gcal_month_view_size_allocate (GtkWidget     *widget,
 
           if (size_left[i] > natural_height)
             {
-              pos_x = cell_width * (i % 7);
-              pos_y = cell_height * ((i / 7) + first_row_gap) + start_grid_y;
+              gtk_style_context_get_margin (gtk_widget_get_style_context (child_widget),
+                                            gtk_widget_get_state_flags (child_widget),
+                                            &margin);
+
+              pos_x = cell_width * (i % 7) + margin.left;
+              pos_y = cell_height * ((i / 7) + first_row_gap) + start_grid_y + margin.top;
 
               child_allocation.x = pos_x;
               child_allocation.y = pos_y + vertical_cell_space - size_left[i];
-              child_allocation.width = cell_width;
+              child_allocation.width = cell_width - (margin.left + margin.right);
               child_allocation.height = natural_height;
               gtk_widget_show (child_widget);
               gtk_widget_size_allocate (child_widget, &child_allocation);
               g_hash_table_remove (ppriv->hidden_as_overflow, uuid);
 
-              size_left[i] -= natural_height;
+              size_left[i] -= natural_height + margin.top + margin.bottom;
             }
           else
             {
@@ -1014,6 +1037,9 @@ gcal_month_view_size_allocate (GtkWidget     *widget,
             }
         }
     }
+
+  if (g_hash_table_size (ppriv->overflow_cells) != 0)
+    gtk_widget_queue_draw (widget);
 
   ppriv->children_changed = FALSE;
 }
@@ -1537,7 +1563,7 @@ gcal_month_view_button_release (GtkWidget      *widget,
       start_date->is_date = 1;
 
       end_date = gcal_dup_icaltime (priv->date);
-      end_date->day = j - priv->days_delay + 1;
+      end_date->day = j - priv->days_delay;
       end_date->is_date = 1;
 
       if (start_date->day > end_date->day)
@@ -1546,6 +1572,7 @@ gcal_month_view_button_release (GtkWidget      *widget,
           start_date->day = end_date->day;
           end_date->day = day;
         }
+      end_date->day += 1 ;
 
       g_signal_emit_by_name (GCAL_VIEW (widget), "create-event", start_date, end_date, x, y);
 

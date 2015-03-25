@@ -49,9 +49,6 @@ struct _GcalApplicationPrivate
   icaltimetype   *initial_date;
 };
 
-static void     load_completed_cb                     (GcalApplication         *application,
-                                                       GcalManager             *manager);
-
 static void     gcal_application_finalize             (GObject                 *object);
 
 static void     gcal_application_activate             (GApplication            *app);
@@ -137,8 +134,6 @@ process_sources (GcalApplication *application)
   GQuark color_id;
   const gchar* color_str;
 
-  gchar *bkg_color, *slanted_edge_both_ltr, *slanted_edge_both_rtl;
-  gchar *slanted_edge_start_ltr, *slanted_edge_start_rtl, *slanted_edge_end_ltr, *slanted_edge_end_rtl;
   gchar **new_css_snippets;
   gchar *new_css_data;
 
@@ -156,39 +151,7 @@ process_sources (GcalApplication *application)
       color_str = get_color_name_from_source (source);
       color_id = g_quark_from_string (color_str);
 
-      bkg_color = g_strdup_printf (CSS_TEMPLATE, color_id, color_str);
-      slanted_edge_both_ltr =
-          g_strdup_printf (CSS_TEMPLATE_EDGE_BOTH, color_id,
-                           color_str, color_str, color_str, color_str, color_str, color_str, color_str, color_str,
-                           color_str, color_str, color_str, color_str, color_str, color_str, color_str);
-      slanted_edge_both_rtl =
-          g_strdup_printf (CSS_TEMPLATE_EDGE_BOTH_RTL, color_id,
-                           color_str, color_str, color_str, color_str, color_str, color_str, color_str, color_str,
-                           color_str, color_str, color_str, color_str, color_str, color_str, color_str);
-      slanted_edge_end_ltr =
-          g_strdup_printf (CSS_TEMPLATE_EDGE, color_id,
-                           color_str, color_str, color_str, color_str, color_str, color_str, color_str, color_str);
-      slanted_edge_start_ltr =
-          g_strdup_printf (CSS_TEMPLATE_EDGE_START, color_id,
-                           color_str, color_str, color_str, color_str, color_str, color_str, color_str, color_str);
-      slanted_edge_end_rtl =
-          g_strdup_printf (CSS_TEMPLATE_EDGE_RTL, color_id,
-                           color_str, color_str, color_str, color_str, color_str, color_str, color_str, color_str);
-      slanted_edge_start_rtl =
-          g_strdup_printf (CSS_TEMPLATE_EDGE_START_RTL, color_id,
-                           color_str, color_str, color_str, color_str, color_str, color_str, color_str, color_str);
-
-      new_css_snippets[i] = g_strconcat (bkg_color, slanted_edge_both_ltr, slanted_edge_both_rtl,
-                                         slanted_edge_end_ltr, slanted_edge_start_ltr,
-                                         slanted_edge_end_rtl, slanted_edge_start_rtl, NULL);
-
-      g_free (bkg_color);
-      g_free (slanted_edge_both_ltr);
-      g_free (slanted_edge_both_rtl);
-      g_free (slanted_edge_end_ltr);
-      g_free (slanted_edge_start_ltr);
-      g_free (slanted_edge_start_rtl);
-      g_free (slanted_edge_end_rtl);
+      new_css_snippets[i] = g_strdup_printf (CSS_TEMPLATE, color_id, color_str);
     }
 
   g_list_free (sources);
@@ -211,16 +174,6 @@ sources_added_cb (GcalApplication *application,
                   GcalManager     *manager)
 {
   process_sources (application);
-}
-
-static void
-load_completed_cb (GcalApplication *application,
-                   GcalManager     *manager)
-{
-  process_sources (application);
-
-  /* listen for other sources */
-  g_signal_connect_swapped (manager, "source-added", G_CALLBACK (sources_added_cb), application);
 }
 
 static void
@@ -250,7 +203,7 @@ gcal_application_init (GcalApplication *self)
   priv->colors_provider = gtk_css_provider_new ();
 
   priv->manager = gcal_manager_new_with_settings (priv->settings);
-  g_signal_connect_swapped (priv->manager, "load-completed", G_CALLBACK (load_completed_cb), self);
+  g_signal_connect_swapped (priv->manager, "source-added", G_CALLBACK (sources_added_cb), self);
 
   priv->search_provider = gcal_shell_search_provider_new ();
   gcal_shell_search_provider_connect (priv->search_provider, priv->manager);
@@ -331,7 +284,6 @@ gcal_application_activate (GApplication *application)
       if (priv->initial_date == NULL)
         {
           priv->initial_date = g_new0 (icaltimetype, 1);
-          /* FIXME: here read the initial date from somewehere */
           *(priv->initial_date) = icaltime_current_time_with_zone (gcal_manager_get_system_timezone (priv->manager));
           *(priv->initial_date) = icaltime_set_timezone (priv->initial_date,
                                                          gcal_manager_get_system_timezone (priv->manager));
@@ -343,8 +295,7 @@ gcal_application_activate (GApplication *application)
       g_settings_bind (priv->settings, "active-view", priv->window, "active-view",
                        G_SETTINGS_BIND_SET | G_SETTINGS_BIND_GET);
 
-      /* FIXME: remove me in favor of gtk_widget_show() */
-      gtk_widget_show_all (priv->window);
+      gtk_widget_show (priv->window);
     }
 
     g_clear_pointer (&(priv->initial_date), g_free);

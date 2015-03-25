@@ -1,3 +1,5 @@
+@define-color event_shadow_color alpha(black, 0.2);
+
 .views {
     /* background color of every view */
     background-color: @theme_base_color;
@@ -58,13 +60,13 @@
 }
 
 .calendar-view.first-view-header {
-    font: bold 18;
+    font: bold 16;
     color: @theme_selected_bg_color;
     padding: 12px;
 }
 
 .calendar-view.second-view-header {
-    font: bold 18;
+    font: bold 16;
     padding: 12px;
     color: alpha(@theme_fg_color, 0.55);
 }
@@ -178,11 +180,8 @@ GtkPopover.events GtkButton {
 }
 
 GcalEventWidget {
-    border-radius: 3px;
-    margin-top: 2px;
-    margin-left: 4px;
-    margin-bottom: 2px;
-    margin-right: 4px;
+    border-radius: 2px;
+    margin: 2px;
     padding: 4px;
     font: 10;
 }

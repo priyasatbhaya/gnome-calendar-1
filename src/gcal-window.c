@@ -54,6 +54,7 @@ typedef struct
 {
   /* timeout ids */
   guint                save_geometry_timeout_id;
+  guint                notification_timeout;
 
   /* upper level widgets */
   GtkWidget           *main_box;
@@ -179,8 +180,8 @@ static void           create_notification                (GcalWindow          *w
                                                           gchar               *message,
                                                           gchar               *button_label);
 
-static void           hide_notification                  (GtkWidget           *button,
-                                                          gpointer             user_data);
+static void           hide_notification                  (GcalWindow          *window,
+                                                          GtkWidget           *button);
 
 /* calendar management */
 static void           add_source                         (GcalManager         *manager,
@@ -295,13 +296,18 @@ update_active_date (GcalWindow   *window,
 
   time_t range_start, range_end;
   icaltimetype date;
+  icaltimetype *previous_date;
   icaltimezone* default_zone;
 
   priv = gcal_window_get_instance_private (window);
   default_zone = gcal_manager_get_system_timezone (priv->manager);
 
+  previous_date = priv->active_date;
+  priv->active_date = new_date;
+  g_object_notify (G_OBJECT (window), "active-date");
+
   /* year_view */
-  if (priv->active_date->year != new_date->year)
+  if (previous_date->year != new_date->year)
     {
       date = *new_date;
       date.day = 1;
@@ -322,7 +328,7 @@ update_active_date (GcalWindow   *window,
     }
 
   /* month_view */
-  if (priv->active_date->month != new_date->month || priv->active_date->year != new_date->year)
+  if (previous_date->month != new_date->month || previous_date->year != new_date->year)
     {
       date = *new_date;
       date.day = 1;
@@ -340,8 +346,7 @@ update_active_date (GcalWindow   *window,
       gcal_manager_set_subscriber (priv->manager, E_CAL_DATA_MODEL_SUBSCRIBER (priv->month_view), range_start, range_end);
     }
 
-    g_free (priv->active_date);
-    priv->active_date = new_date;
+  g_free (previous_date);
 }
 
 static gboolean
@@ -410,7 +415,6 @@ date_updated (GtkButton  *button,
     }
 
   update_active_date (user_data, new_date);
-  g_object_notify (user_data, "active-date");
 }
 
 static void
@@ -737,16 +741,20 @@ create_notification (GcalWindow *window,
 }
 
 static void
-hide_notification (GtkWidget *button,
-                   gpointer   user_data)
+hide_notification (GcalWindow *window,
+                   GtkWidget  *button)
 {
-  GcalWindowPrivate *priv;
-
-  priv = gcal_window_get_instance_private (GCAL_WINDOW (user_data));
-  gtk_revealer_set_reveal_child (GTK_REVEALER (priv->notification),
-                                 FALSE);
+  GcalWindowPrivate *priv = gcal_window_get_instance_private (window);
+  gtk_revealer_set_reveal_child (GTK_REVEALER (priv->notification), FALSE);
+  priv->notification_timeout = 0;
 }
 
+static gboolean
+hide_notification_scheduled (gpointer window)
+{
+  hide_notification (GCAL_WINDOW (window), NULL);
+  return FALSE;
+}
 
 static void
 add_source (GcalManager *manager,
@@ -1109,22 +1117,26 @@ edit_dialog_closed (GtkDialog *dialog,
       break;
 
     case GCAL_RESPONSE_DELETE_EVENT:
-      /* delete the event */
-      create_notification (GCAL_WINDOW (user_data),
-                           _("Event deleted"),
-                           _("Undo"));
-      gtk_revealer_set_reveal_child (GTK_REVEALER (priv->notification),
-                                     TRUE);
-
-      /* FIXME: this will crash if the notification is still open */
       if (priv->event_to_delete != NULL)
-        g_free (priv->event_to_delete);
+        {
+          gcal_manager_remove_event (priv->manager, priv->event_to_delete->source, priv->event_to_delete->event_component);
+          g_clear_pointer (&(priv->event_to_delete), g_free);
+
+          create_notification (GCAL_WINDOW (user_data), _("Another event deleted"), _("Undo"));
+        }
+      else
+        {
+          create_notification (GCAL_WINDOW (user_data), _("Event deleted"), _("Undo"));
+        }
+
+      gtk_revealer_set_reveal_child (GTK_REVEALER (priv->notification), TRUE);
+      if (priv->notification_timeout != 0)
+        g_source_remove (priv->notification_timeout);
+      priv->notification_timeout = g_timeout_add_seconds (5, hide_notification_scheduled, user_data);
 
       priv->event_to_delete = g_new0 (GcalEventData, 1);
-      priv->event_to_delete->source =
-        gcal_edit_dialog_get_source (edit_dialog);
-      priv->event_to_delete->event_component =
-        gcal_edit_dialog_get_component (edit_dialog);
+      priv->event_to_delete->source = gcal_edit_dialog_get_source (edit_dialog);
+      priv->event_to_delete->event_component = gcal_edit_dialog_get_component (edit_dialog);
 
       uuid = gcal_edit_dialog_get_event_uuid (edit_dialog);
       /* hide widget of the event */
@@ -1198,9 +1210,9 @@ search_bar_revealer_toggled (GObject    *object,
 }
 
 static void
-remove_event (GtkWidget       *notification,
-                          GParamSpec      *spec,
-                          gpointer         user_data)
+remove_event (GtkWidget  *notification,
+              GParamSpec *spec,
+              gpointer    user_data)
 {
   GcalWindowPrivate *priv;
 
@@ -1263,6 +1275,7 @@ undo_remove_action (GtkButton *button,
       widgets = gcal_view_get_children_by_uuid (GCAL_VIEW (priv->views[priv->active_view]), uuid);
       g_list_foreach (widgets, (GFunc) gtk_widget_show, NULL);
 
+      g_object_unref (priv->event_to_delete->event_component);
       g_clear_pointer (&(priv->event_to_delete), g_free);
       g_list_free (widgets);
       g_free (uuid);
@@ -1539,6 +1552,7 @@ gcal_window_finalize (GObject *object)
   priv = gcal_window_get_instance_private (GCAL_WINDOW (object));
 
   g_free (priv->active_date);
+  g_free (priv->current_date);
 
   if (priv->views_switcher != NULL)
     g_object_unref (priv->views_switcher);

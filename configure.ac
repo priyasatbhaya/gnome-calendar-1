@@ -1,6 +1,6 @@
 dnl -*- mode: m4 -*-
 AC_PREREQ([2.69])
-AC_INIT([gnome-calendar],[3.15.4.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=gnome-calendar],[gnome-calendar],[https://wiki.gnome.org/Apps/Calendar])
+AC_INIT([gnome-calendar],[3.15.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=gnome-calendar],[gnome-calendar],[https://wiki.gnome.org/Apps/Calendar])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([src/main.c])
@@ -81,7 +81,7 @@ MAINTAINER_COMPILER_FLAGS="\
 MAINTAINER_COMPILER_FLAGS=${MAINTAINER_COMPILER_FLAGS#*  }
 AC_SUBST(MAINTAINER_COMPILER_FLAGS)
 
-GLIB_MIN_VERSION=2.43.2
+GLIB_MIN_VERSION=2.43.4
 GTK_MIN_VERSION=3.15.4
 ECAL_REQUIRED=3.13.90
 EDATASERVER_REQUIRED=3.13.90
@@ -95,6 +95,7 @@ PKG_CHECK_MODULES(CALENDAR,
                   gtk+-3.0 >= $GTK_MIN_VERSION
                   libecal-1.2 >= $ECAL_REQUIRED
                   libedataserver-1.2 >= $EDATASERVER_REQUIRED
+                  libedataserverui-1.2 >= $EDATASERVERUI_REQUIRED
                   libical >= $LIBICAL_REQUIRED)
 
 APPSTREAM_XML
