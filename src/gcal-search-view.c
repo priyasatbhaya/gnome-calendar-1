@@ -91,9 +91,9 @@ static gint           sort_by_event                             (GtkListBoxRow  
                                                                  GtkListBoxRow        *row2,
                                                                  gpointer              user_data);
 
-static gint           compare_events                            (GcalEventData        *ev1,
-                                                                 GcalEventData        *ev2,
-                                                                 time_t               *utc);
+static gint           compare_events                            (RowEventData         *rd1,
+                                                                 RowEventData         *rd2,
+                                                                 GcalSearchView       *view);
 
 static gboolean       show_no_results_page                      (GcalSearchView       *view);
 
@@ -221,32 +221,32 @@ sort_by_event (GtkListBoxRow *row1,
                GtkListBoxRow *row2,
                gpointer       user_data)
 {
-  GcalSearchViewPrivate *priv;
   RowEventData *rd1, *rd2;
-  GcalEventData *ev1, *ev2;
-
-  priv = gcal_search_view_get_instance_private (GCAL_SEARCH_VIEW (user_data));
 
   /* retrieve event data */
   rd1 = g_object_get_data (G_OBJECT (row1), "event-data");
   rd2 = g_object_get_data (G_OBJECT (row2), "event-data");
 
-  ev1 = rd1->event_data;
-  ev2 = rd2->event_data;
 
-  if (ev1 == NULL || ev2 == NULL)
+  if (rd1->event_data == NULL || rd2->event_data == NULL)
       return 0;
 
-  return compare_events (ev1, ev2, &(priv->current_utc_date));
+  return compare_events (rd1, rd2, GCAL_SEARCH_VIEW (user_data));
 }
 
 static gint
-compare_events (GcalEventData *ev1,
-                GcalEventData *ev2,
-                time_t        *utc)
+compare_events (RowEventData   *rd1,
+                RowEventData   *rd2,
+                GcalSearchView *view)
 {
+  GcalSearchViewPrivate *priv;
   ECalComponentDateTime date1, date2;
+  GcalEventData *ev1, *ev2;
   gint result;
+
+  priv = gcal_search_view_get_instance_private (view);
+  ev1 = rd1->event_data;
+  ev2 = rd2->event_data;
 
   e_cal_component_get_dtstart (ev1->event_component, &date1);
   e_cal_component_get_dtstart (ev2->event_component, &date2);
@@ -255,7 +255,7 @@ compare_events (GcalEventData *ev1,
     date1.value->zone = icaltimezone_get_builtin_timezone_from_tzid (date1.tzid);
   if (date2.tzid != NULL)
     date2.value->zone = icaltimezone_get_builtin_timezone_from_tzid (date2.tzid);
-  result = icaltime_compare_with_current (date1.value, date2.value, utc);
+  result = icaltime_compare_with_current (date1.value, date2.value, &(priv->current_utc_date));
 
   e_cal_component_free_datetime (&date1);
   e_cal_component_free_datetime (&date2);
