@@ -46,6 +46,10 @@ typedef struct
    */
   GHashTable     *uuid_to_event;
 
+  // List to handle pages of events.
+  GList          *offset_events;
+  gint            current_page;
+
   /* misc */
   gint            no_results_timeout_id;
   gint            num_results;
@@ -77,6 +81,7 @@ enum
 static guint signals[NUM_SIGNALS] = { 0, };
 
 #define NO_RESULT_TIMEOUT 250 /* ms */
+#define PAGE_OFFSET       50  /* number of events */
 
 /* callbacks */
 static void           display_header_func                       (GtkListBoxRow        *row,
@@ -542,7 +547,7 @@ gcal_search_view_constructed (GObject *object)
   priv = gcal_search_view_get_instance_private (GCAL_SEARCH_VIEW (object));
 
   /* make the listbox sorted */
-  gtk_list_box_set_sort_func (GTK_LIST_BOX (priv->listbox), (GtkListBoxSortFunc) sort_by_event, object, NULL);
+  //gtk_list_box_set_sort_func (GTK_LIST_BOX (priv->listbox), (GtkListBoxSortFunc) sort_by_event, object, NULL);
   gtk_list_box_set_header_func (GTK_LIST_BOX (priv->listbox), display_header_func, NULL, NULL);
 
   // (gchar)uuid -> (RowEventData)event Hash table
@@ -646,18 +651,31 @@ gcal_search_view_component_added (ECalDataModelSubscriber *subscriber,
   row_data = g_new0 (RowEventData, 1);
   row_data->event_data = data;
   row_data->uuid = uuid;
-  row_data->row = make_row_for_event_data (GCAL_SEARCH_VIEW (subscriber), data);
-  g_signal_connect (row_data->row, "destroy", G_CALLBACK (gtk_widget_destroyed), &(row_data->row));
 
-  g_object_set_data (G_OBJECT (row_data->row), "event-data", row_data);
   g_hash_table_insert (priv->uuid_to_event, uuid, row_data);
 
-  gtk_container_add (GTK_CONTAINER (priv->listbox), row_data->row);
+  /* First, add it to the list. Then, it'll
+   * track user interaction to determine whether
+   * it'll load more or less events to the
+   * listbox.
+   */
+  priv->offset_events = g_list_insert_sorted_with_data (priv->offset_events, row_data,
+                                                        (GCompareDataFunc) compare_events, subscriber);
 
-  /* show 'no results' */
-  priv->num_results++;
+  // Only add the PAGE_OFFSET first elements
+  if (priv->num_results < PAGE_OFFSET)
+    {
+      row_data->row = make_row_for_event_data (GCAL_SEARCH_VIEW (subscriber), data);
 
-  update_view (GCAL_SEARCH_VIEW (subscriber));
+      g_object_set_data (G_OBJECT (row_data->row), "event-data", row_data);
+      g_signal_connect (row_data->row, "destroy", G_CALLBACK (gtk_widget_destroyed), &(row_data->row));
+
+      gtk_container_add (GTK_CONTAINER (priv->listbox), row_data->row);
+
+      /* show 'no results' */
+      priv->num_results++;
+      update_view (GCAL_SEARCH_VIEW (subscriber));
+    }
 }
 
 static void
@@ -692,19 +710,34 @@ gcal_search_view_component_removed (ECalDataModelSubscriber *subscriber,
   // Lookup the RowEventData
   row_data = g_hash_table_lookup (priv->uuid_to_event, uuid);
 
-  /* Removing the given RowEventData entry will
-   * call free_row_data, which removes the row
-   * from the listbox and also free the uuid.
-   */
   if (row_data)
-    g_hash_table_remove (priv->uuid_to_event, uuid);
+    {
+      gboolean displayed = row_data->row != NULL;
+
+      /* Since the event is always in the list,
+       * remove it first.
+       */
+      priv->offset_events = g_list_remove (priv->offset_events, row_data);
+
+      /* Removing the given RowEventData entry will
+       * call free_row_data, which removes the row
+       * from the listbox and also free the uuid.
+       */
+      g_hash_table_remove (priv->uuid_to_event, uuid);
+
+      /* Only update the number of displayed events
+       * when the row actually exists. Use the bool
+       * field to avoid a use-after-free leak, since
+       * g_hash_table_remove frees the row.
+       */
+      if (displayed)
+        {
+          priv->num_results--;
+          update_view (GCAL_SEARCH_VIEW (subscriber));
+        }
+    }
 
   g_free (uuid);
-
-  /* show 'no results' */
-  priv->num_results--;
-
-  update_view (GCAL_SEARCH_VIEW (subscriber));
 }
 
 static void
