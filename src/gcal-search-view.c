@@ -265,7 +265,7 @@ compare_events (RowEventData   *rd1,
   e_cal_component_free_datetime (&date1);
   e_cal_component_free_datetime (&date2);
 
-  return result;
+  return -1 * result;
 }
 
 /**
