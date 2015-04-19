@@ -1,22 +1,22 @@
-# Italian translation for gnome-calendar.
-# Copyright (C) 2013, 2014, 2015 Free Software Foundation, Inc.
+# Kazakh translation for gnome-calendar.
+# Copyright (C) 2015 gnome-calendar's COPYRIGHT HOLDER
 # This file is distributed under the same license as the gnome-calendar package.
-# Milo Casagrande <milo@milo.name>, 2013, 2014, 2015.
+# Baurzhan Muftakhidinov <baurthefirst@gmail.com>, 2015.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gnome-calendar\n"
+"Project-Id-Version: gnome-calendar master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=gnome-"
 "calendar&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-02-16 14:32+0000\n"
-"PO-Revision-Date: 2015-03-08 17:09+0100\n"
-"Last-Translator: Milo Casagrande <milo@milo.name>\n"
-"Language-Team: Italian <tp@lists.linux.it>\n"
-"Language: it\n"
+"POT-Creation-Date: 2015-03-04 19:09+0000\n"
+"PO-Revision-Date: 2015-03-05 10:08+0500\n"
+"Language-Team: Kazakh <kk_KZ@googlegroups.com>\n"
+"Language: kk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Last-Translator: Baurzhan Muftakhidinov <baurthefirst@gmail.com>\n"
 "X-Generator: Poedit 1.7.4\n"
 
 #: ../data/appdata/org.gnome.Calendar.appdata.xml.in.h:1
@@ -24,11 +24,11 @@ msgstr ""
 #: ../data/org.gnome.Calendar.search-provider.ini.in.in.h:1
 #: ../data/ui/window.ui.h:3 ../src/gcal-application.c:511
 msgid "Calendar"
-msgstr "Calendario"
+msgstr "Күнтізбе"
 
 #: ../data/appdata/org.gnome.Calendar.appdata.xml.in.h:2
 msgid "Calendar for GNOME"
-msgstr "Calendario per GNOME"
+msgstr "GNOME үшін күнтізбе"
 
 #: ../data/appdata/org.gnome.Calendar.appdata.xml.in.h:3
 msgid ""
@@ -36,10 +36,10 @@ msgid ""
 "perfectly fit the GNOME desktop. By reusing the components which the GNOME "
 "desktop is build on, Calendar nicely integrates with the GNOME ecosystem."
 msgstr ""
-"Calendario per GNOME è un'applicazione di calendario progettata per "
-"integrarsi alla perfezione con l'ambiente grafico GNOME. Sfruttando "
-"l'insieme di componenti che l'ambiente grafico GNOME mette a disposizione, "
-"Calendario si integra con tutto l'ecosistema GNOME."
+"GNOME күнтізбе қолданбасы GNOME жұмыс үстел ортасына жарасатындай етіп "
+"жасалған қарапайым әрі әдемі күнтізбе қолданбасы. GNOME жұмыс үстелі "
+"негізінде жатқан құрауыштарды қолдану арқылы күнтізбе қолданбасы GNOME "
+"жүйесімен жақсы үйлеседі."
 
 #: ../data/appdata/org.gnome.Calendar.appdata.xml.in.h:4
 msgid ""
@@ -47,132 +47,129 @@ msgid ""
 "centred usability. No excess, no lacks. You'll feel comfortable using "
 "Calendar, like you've been using it for ages!"
 msgstr ""
-"Cerchiamo di trovare quel giusto bilanciamento tra nuove e interessanti "
-"funzionalità e usabilità utente: niente di più, niente di meno. Usare "
-"Calendario risulterà semplice e immediato."
+"Біз кеңейтілген мүмкіндіктер және пайдалану ыңғайлығы арасында теңгерімді "
+"табуға тырысамыз. Артығы жоқ, жетпеушілігі жоқ. Calendar қолданбасын "
+"қолдануды ыңғайлы екенін өзіңіз де көресіз!"
 
 #: ../data/appdata/org.gnome.Calendar.appdata.xml.in.h:5
 msgid "Search for events"
-msgstr "Cerca eventi"
+msgstr "Оқиғаларды іздеу"
 
 #: ../data/appdata/org.gnome.Calendar.appdata.xml.in.h:6
 msgid "Calendar management"
-msgstr "Gestione calendario"
+msgstr "Күнтізбені басқару"
 
 #: ../data/org.gnome.Calendar.desktop.in.in.h:2
 msgid "Access, and manage calendar"
-msgstr "Accede e gestisce il calendario"
+msgstr "Күнтізбелерге қатынау және басқару"
 
 #: ../data/org.gnome.Calendar.desktop.in.in.h:3
 msgid "Calendar;Event;Reminder;"
-msgstr "Calendario;Evento;Eventi;Promemoria;"
+msgstr "Күнтізбе;Оқиға;Естелік;"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:1
 msgid "Window maximized"
-msgstr "Finestra massimizzata"
+msgstr "Терезе максималды етілген"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:2
 msgid "Window maximized state"
-msgstr "Lo stato massimizzato della finestra"
+msgstr "Терезе максималды күйі"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:3
 msgid "Window size"
-msgstr "Dimensione finestra"
+msgstr "Терезе өлшемі"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:4
 msgid "Window size (width and height)."
-msgstr "La dimensione della finestra (larghezza e altezza)."
+msgstr "Терезе өлшемі (ені мен биіктігі)."
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:5
 msgid "Window position"
-msgstr "Posizione della finestra"
+msgstr "Терезе орны"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:6
 msgid "Window position (x and y)."
-msgstr "La posizione della finestra (x e y)."
+msgstr "Терезе орны (x және y)."
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:7
 msgid "Type of the active view"
-msgstr "Tipo della vista attiva"
+msgstr "Белсенді көрініс түрі"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:8
 msgid "Type of the active window view, default value is: monthly view"
-msgstr ""
-"Il tipo di vista della finestra attiva, il valore predefinito è: vista "
-"mensile"
+msgstr "Белсенді терезе көрінісінің түрі, бастапқы мәні: ай көрінісі"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:9
 msgid "List of the disabled sources"
-msgstr "Elenco di sorgenti disabilitate"
+msgstr "Сөндірілген қайнар көздер тізімі"
 
 #: ../data/org.gnome.calendar.gschema.xml.in.h:10
 msgid "Sources disabled last time Calendar ran"
-msgstr "Sorgenti disabilitate alla precedente esecuzione di Calendario"
+msgstr "Calendar соңғы рет іске қосылған кезде сөндірілген қайнар көздер"
 
 #: ../data/ui/edit-dialog.ui.h:1
 msgid "Cancel"
-msgstr "Annulla"
+msgstr "Бас тарту"
 
 #: ../data/ui/edit-dialog.ui.h:2 ../src/gcal-edit-dialog.c:634
 msgid "Done"
-msgstr "Fatto"
+msgstr "Дайын"
 
 #: ../data/ui/edit-dialog.ui.h:3
 msgid "Title"
-msgstr "Titolo"
+msgstr "Атауы"
 
 #: ../data/ui/edit-dialog.ui.h:4
 msgid "Starts"
-msgstr "Inizio"
+msgstr "Басталады"
 
 #: ../data/ui/edit-dialog.ui.h:5
 msgid "Ends"
-msgstr "Fine"
+msgstr "Аяқталады"
 
 #: ../data/ui/edit-dialog.ui.h:6
 msgid "Notes"
-msgstr "Note"
+msgstr "Естеліктер"
 
 #: ../data/ui/edit-dialog.ui.h:7
 msgid "Location"
-msgstr "Posizione"
+msgstr "Орны"
 
-#: ../data/ui/edit-dialog.ui.h:8 ../src/gcal-search-view.c:387
+#: ../data/ui/edit-dialog.ui.h:8 ../src/gcal-search-view.c:374
 msgid "All day"
-msgstr "Tutto il giorno"
+msgstr "Толық күн"
 
 #: ../data/ui/edit-dialog.ui.h:9
 msgid "Delete event"
-msgstr "Elimina evento"
+msgstr "Оқиғаны өшіру"
 
 #: ../data/ui/menus.ui.h:1
 msgid "Add Eve_nt…"
-msgstr "A_ggiungi evento…"
+msgstr "Оқиға_ны қосу…"
 
 #: ../data/ui/menus.ui.h:2
-#| msgid "Search..."
 msgid "_Search…"
-msgstr "_Cerca…"
+msgstr "І_здеу…"
 
 #: ../data/ui/menus.ui.h:3
 msgid "_About"
-msgstr "I_nformazioni"
+msgstr "О_сы туралы"
 
 #: ../data/ui/menus.ui.h:4
 msgid "_Quit"
-msgstr "_Esci"
+msgstr "_Шығу"
 
 #: ../data/ui/menus.ui.h:5
 msgid "_Synchronize"
-msgstr "_Sincronizza"
+msgstr "_Синхрондау"
 
 #: ../data/ui/search-view.ui.h:1
 msgid "No results found"
-msgstr "Nessun risultato trovato"
+msgstr "Нәтижелер табылмады"
 
 #: ../data/ui/search-view.ui.h:2
 msgid "Use the entry above to search for events."
-msgstr "Usare la casella di testo per cercare gli eventi."
+msgstr "Оқиғаларды іздеу үшін жоғарыдағы өрісті қолданыңыз."
 
 #: ../data/ui/time-selector.ui.h:1
 msgid "00:00"
@@ -182,98 +179,97 @@ msgstr "00:00"
 msgid ":"
 msgstr ":"
 
-#: ../data/ui/time-selector.ui.h:3 ../src/gcal-search-view.c:381
+#: ../data/ui/time-selector.ui.h:3 ../src/gcal-search-view.c:368
 #: ../src/gcal-week-view.c:417
 msgid "AM"
 msgstr "AM"
 
-#: ../data/ui/time-selector.ui.h:4 ../src/gcal-search-view.c:381
+#: ../data/ui/time-selector.ui.h:4 ../src/gcal-search-view.c:368
 #: ../src/gcal-week-view.c:417
 msgid "PM"
 msgstr "PM"
 
 #: ../data/ui/window.ui.h:1 ../src/gcal-date-selector.c:305
 msgid "Month"
-msgstr "Mese"
+msgstr "Ай"
 
 #: ../data/ui/window.ui.h:2 ../src/gcal-date-selector.c:307
 msgid "Year"
-msgstr "Anno"
+msgstr "Жыл"
 
 #: ../data/ui/window.ui.h:4 ../data/ui/year-view.ui.h:1
 #: ../src/gcal-year-view.c:218 ../src/gcal-year-view.c:404
 msgid "Today"
-msgstr "Oggi"
+msgstr "Бүгін"
 
 #: ../data/ui/window.ui.h:5
 msgid "Create"
-msgstr "Crea"
+msgstr "Жасау"
 
 #: ../data/ui/window.ui.h:6
 msgid "More Details"
-msgstr "Ulteriori aggiuntivi"
+msgstr "Көбірек ақпарат"
 
 #: ../data/ui/year-view.ui.h:2
 msgid "No events"
-msgstr "Nessun evento"
+msgstr "Оқиғалар жоқ"
 
 #: ../data/ui/year-view.ui.h:3 ../src/gcal-month-view.c:604
 msgid "Add Event…"
-msgstr "Aggiungi evento…"
+msgstr "Оқиғаны қосу…"
 
 #: ../src/gcal-application.c:102
 msgid "Display version number"
-msgstr "Numero di versione del display"
+msgstr "Нұсқа ақпаратын көрсету"
 
 #: ../src/gcal-application.c:107
 msgid "Open calendar on the passed date"
-msgstr "Apre il calendario alla data fornita"
+msgstr "Күнтізбені өткен күнде ашу"
 
 #: ../src/gcal-application.c:112
 msgid "Open calendar showing the passed event"
-msgstr "Apre il calendario mostrando l'evento fornito"
+msgstr "Күнтізбені өткен оқиғада ашу"
 
 #: ../src/gcal-application.c:332
 msgid "- Calendar management"
-msgstr "- Gestione calendario"
+msgstr "- Күнтізбені басқару"
 
 #: ../src/gcal-application.c:499
 msgid "Copyright © %Id The Calendar authors"
-msgstr "Copyright © %Id gli autori di Calendario"
+msgstr "Copyright © %Id Calendar авторлары"
 
 #: ../src/gcal-application.c:505
 msgid "Copyright © %Id–%Id The Calendar authors"
-msgstr "Copyright © %Id–%Id gli autori di Calendario"
+msgstr "Copyright © %Id–%Id Calendar авторлары"
 
 #: ../src/gcal-application.c:518
 msgid "translator-credits"
-msgstr "Milo Casagrande <milo@milo.name>"
+msgstr "Baurzhan Muftakhidinov <baurthefirst@gmail.com>"
 
 #: ../src/gcal-date-selector.c:303
 msgid "Day"
-msgstr "Giorno"
+msgstr "Күн"
 
 #: ../src/gcal-edit-dialog.c:634
 msgid "Save"
-msgstr "Salva"
+msgstr "Сақтау"
 
 #: ../src/gcal-edit-dialog.c:818
 msgid "Unnamed event"
-msgstr "Evento senza nome"
+msgstr "Атаусыз оқиға"
 
-#: ../src/gcal-month-view.c:826
+#: ../src/gcal-month-view.c:820
 msgid "Other events"
-msgstr "Altri eventi"
+msgstr "Басқа оқиғалар"
 
 #. TODO: Warning in some languages this string can be too long and may overlap wit the number
-#: ../src/gcal-month-view.c:1209
+#: ../src/gcal-month-view.c:1203
 #, c-format
 msgid "Other event"
 msgid_plural "Other %d events"
-msgstr[0] "Altro evento"
-msgstr[1] "Altri %d eventi"
+msgstr[0] "Басқа %d оқиға"
 
-#: ../src/gcal-search-view.c:380
+#: ../src/gcal-search-view.c:367
 #, c-format
 msgid "%.2d:%.2d %s"
 msgstr "%.2d:%.2d %s"
@@ -290,11 +286,11 @@ msgstr "%.2d:%.2d PM"
 
 #: ../src/gcal-week-view.c:420 ../src/gcal-week-view.c:493
 msgid "Midnight"
-msgstr "Mezzanotte"
+msgstr "Түн ортасы"
 
 #: ../src/gcal-week-view.c:422 ../src/gcal-week-view.c:496
 msgid "Noon"
-msgstr "Mezzogiorno"
+msgstr "Талтүс"
 
 #: ../src/gcal-week-view.c:499
 msgid "00:00 PM"
@@ -303,16 +299,16 @@ msgstr "00:00 PM"
 #: ../src/gcal-window.c:636
 #, c-format
 msgid "New Event on %s"
-msgstr "Nuovo evento in data %s"
+msgstr "Жаңа оқиға, %s"
 
 #: ../src/gcal-window.c:1036
 msgid "Another event deleted"
-msgstr "Un altro evento eliminato"
+msgstr "Басқа оқиға өшірілді"
 
 #: ../src/gcal-window.c:1036 ../src/gcal-window.c:1040
 msgid "Undo"
-msgstr "Annulla"
+msgstr "Болдырмау"
 
 #: ../src/gcal-window.c:1040
 msgid "Event deleted"
-msgstr "Evento eliminato"
+msgstr "Оқиға өшірілді"

@@ -161,11 +161,14 @@ get_circle_pixbuf_from_color (GdkRGBA *color,
   return pix;
 }
 
-const gchar*
-get_color_name_from_source (ESource *source)
+void
+get_color_name_from_source (ESource *source, GdkRGBA *out_color)
 {
   ESourceSelectable *extension = E_SOURCE_SELECTABLE (e_source_get_extension (source, E_SOURCE_EXTENSION_CALENDAR));
-  return e_source_selectable_get_color (extension);
+
+  /* FIXME: We should handle calendars colours better */
+  if (!gdk_rgba_parse (out_color, e_source_selectable_get_color (extension)))
+    gdk_rgba_parse (out_color, "#becedd"); /* calendar default colour */
 }
 
 gint
@@ -237,7 +240,7 @@ get_desc_from_component (ECalComponent *component,
     }
 
   e_cal_component_free_text_list (text_list);
-  return desc;
+  return desc != NULL ? g_strstrip (desc) : NULL;
 }
 
 /**
@@ -698,6 +701,13 @@ get_source_parent_name_color (GcalManager  *manager,
 
   if (name)
     *name = e_source_dup_display_name (parent_source);
+
   if (color)
-    *color = g_strdup (get_color_name_from_source (parent_source));
+    {
+      GdkRGBA c;
+
+      get_color_name_from_source (parent_source, &c);
+
+      *color = gdk_rgba_to_string (&c);
+    }
 }

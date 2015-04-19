@@ -135,7 +135,7 @@ fill_sources_menu (GcalEditDialog *dialog)
       source = E_SOURCE (aux->data);
 
       /* retrieve color */
-      gdk_rgba_parse (&color, get_color_name_from_source (source));
+      get_color_name_from_source (source, &color);
       pix = gcal_get_pixbuf_from_color (&color, 16);;
 
       /* menu item */
@@ -195,13 +195,14 @@ on_calendar_selected (GtkWidget *menu_item,
         GdkPixbuf *pix;
 
         /* retrieve color */
-        gdk_rgba_parse (&color, get_color_name_from_source (source));
+        get_color_name_from_source (source, &color);
 
         pix = gcal_get_pixbuf_from_color (&color, 16);
         gtk_image_set_from_pixbuf (GTK_IMAGE (priv->source_image), pix);
         g_object_unref (pix);
 
-        priv->source = source;
+        if (priv->source != NULL)
+          g_set_object (&(priv->source), source);
         gtk_header_bar_set_subtitle (GTK_HEADER_BAR (priv->titlebar),
                                      e_source_get_display_name (priv->source));
         break;
@@ -289,7 +290,18 @@ update_date (GtkEntry   *entry,
   e_cal_component_get_dtend (priv->component, &dtend);
 
   *(dtstart.value) = *start_date;
+  if (dtstart.tzid != NULL)
+    {
+      icaltimezone* zone = icaltimezone_get_builtin_timezone_from_tzid (dtstart.tzid);
+      *(dtstart.value) = icaltime_convert_to_zone (*start_date, zone);
+    }
+
   *(dtend.value) = *end_date;
+  if (dtend.tzid != NULL)
+    {
+      icaltimezone* zone = icaltimezone_get_builtin_timezone_from_tzid (dtend.tzid);
+      *(dtend.value) = icaltime_convert_to_zone (*end_date, zone);
+    }
 
   e_cal_component_set_dtstart (priv->component, &dtstart);
   e_cal_component_set_dtend (priv->component, &dtend);
@@ -435,7 +447,18 @@ update_time (GtkEntry   *entry,
   e_cal_component_get_dtend (priv->component, &dtend);
 
   *(dtstart.value) = *start_date;
+  if (dtstart.tzid != NULL)
+    {
+      icaltimezone* zone = icaltimezone_get_builtin_timezone_from_tzid (dtstart.tzid);
+      *(dtstart.value) = icaltime_convert_to_zone (*start_date, zone);
+    }
+
   *(dtend.value) = *end_date;
+  if (dtend.tzid != NULL)
+    {
+      icaltimezone* zone = icaltimezone_get_builtin_timezone_from_tzid (dtend.tzid);
+      *(dtend.value) = icaltime_convert_to_zone (*end_date, zone);
+    }
 
   e_cal_component_set_dtstart (priv->component, &dtstart);
   e_cal_component_set_dtend (priv->component, &dtend);
@@ -820,7 +843,7 @@ gcal_edit_dialog_set_event_data (GcalEditDialog *dialog,
     gtk_entry_set_text (GTK_ENTRY (priv->summary_entry), e_summary.value);
 
   /* dialog titlebar's title & subtitle */
-  gdk_rgba_parse (&color, get_color_name_from_source (data->source));
+  get_color_name_from_source (data->source, &color);
 
   pix = gcal_get_pixbuf_from_color (&color, 16);
   gtk_image_set_from_pixbuf (GTK_IMAGE (priv->source_image), pix);
@@ -846,8 +869,15 @@ gcal_edit_dialog_set_event_data (GcalEditDialog *dialog,
   if (!all_day)
     {
       icaltimetype *date = gcal_dup_icaltime (dtstart.value);
-      *date = icaltime_convert_to_zone (*(dtstart.value), e_cal_util_get_system_timezone ());
-      gcal_time_selector_set_time (GCAL_TIME_SELECTOR (priv->start_time_selector), date->hour, date->minute);
+      if (dtstart.tzid != NULL)
+        {
+          dtstart.value->zone =
+            icaltimezone_get_builtin_timezone_from_tzid (dtstart.tzid);
+        }
+      *date = icaltime_convert_to_zone (*(dtstart.value),
+                                        e_cal_util_get_system_timezone ());
+      gcal_time_selector_set_time (GCAL_TIME_SELECTOR (priv->start_time_selector),
+                                   date->hour, date->minute);
       g_free (date);
     }
 
@@ -860,8 +890,15 @@ gcal_edit_dialog_set_event_data (GcalEditDialog *dialog,
       if (!all_day)
         {
           icaltimetype *date = gcal_dup_icaltime (dtend.value);
-          *date = icaltime_convert_to_zone (*(dtstart.value), e_cal_util_get_system_timezone ());
-          gcal_time_selector_set_time (GCAL_TIME_SELECTOR (priv->end_time_selector), date->hour, date->minute);
+          if (dtend.tzid != NULL)
+            {
+              dtend.value->zone =
+                icaltimezone_get_builtin_timezone_from_tzid (dtend.tzid);
+            }
+          *date = icaltime_convert_to_zone (*(dtend.value),
+                                            e_cal_util_get_system_timezone ());
+          gcal_time_selector_set_time (GCAL_TIME_SELECTOR (priv->end_time_selector),
+                                       date->hour, date->minute);
           g_free (date);
         }
     }
@@ -869,7 +906,8 @@ gcal_edit_dialog_set_event_data (GcalEditDialog *dialog,
     {
       gcal_date_selector_set_date (GCAL_DATE_SELECTOR (priv->end_date_selector),
                                    dtstart.value->day, dtstart.value->month, dtstart.value->year);
-      gcal_time_selector_set_time (GCAL_TIME_SELECTOR (priv->end_time_selector), dtstart.value->hour, dtstart.value->minute);
+      gcal_time_selector_set_time (GCAL_TIME_SELECTOR (priv->end_time_selector),
+                                   dtstart.value->hour, dtstart.value->minute);
     }
 
   e_cal_component_free_datetime (&dtstart);
