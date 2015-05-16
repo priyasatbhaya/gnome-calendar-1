@@ -661,24 +661,24 @@ uri_get_fields (const gchar  *uri,
     {
       valid = TRUE;
 
-      if (schema)
+      if (schema != NULL)
         *schema = g_match_info_fetch (match, 1);
 
-      if (host)
+      if (host != NULL)
         *host = g_match_info_fetch (match, 2);
 
-      if (path)
+      if (path != NULL)
         *path = g_match_info_fetch (match, 3);
     }
   else
     {
-      if (schema)
+      if (schema != NULL)
         *schema = NULL;
 
-      if (host)
+      if (host != NULL)
         *host = NULL;
 
-      if (path)
+      if (path != NULL)
         *path = NULL;
     }
 
@@ -699,10 +699,10 @@ get_source_parent_name_color (GcalManager  *manager,
 
   parent_source = gcal_manager_get_source (manager, e_source_get_parent (source));
 
-  if (name)
+  if (name != NULL)
     *name = e_source_dup_display_name (parent_source);
 
-  if (color)
+  if (color != NULL)
     {
       GdkRGBA c;
 
