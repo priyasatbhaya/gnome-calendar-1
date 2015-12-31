@@ -57,18 +57,10 @@ struct _GcalDateSelector
 
 enum
 {
-  MODIFIED,
-  NUM_SIGNALS
-};
-
-enum
-{
   PROP_0,
   PROP_DATE,
   NUM_PROPS
 };
-
-static guint signals[NUM_SIGNALS] = { 0, };
 
 static void     calendar_day_selected                             (GtkCalendar          *calendar,
                                                                    gpointer              user_data);
@@ -270,13 +262,6 @@ gcal_date_selector_class_init (GcalDateSelectorClass *klass)
                                                        "The date of the selector",
                                                        G_TYPE_DATE,
                                                        G_PARAM_READWRITE));
-
-  signals[MODIFIED] = g_signal_new ("modified",
-                                    GCAL_TYPE_DATE_SELECTOR,
-                                    G_SIGNAL_RUN_LAST,
-                                    0,
-                                    NULL, NULL, NULL,
-                                    G_TYPE_NONE, 0);
 
   gtk_widget_class_set_template_from_resource (GTK_WIDGET_CLASS (klass), "/org/gnome/calendar/date-selector.ui");
 
@@ -480,8 +465,8 @@ gcal_date_selector_set_date (GcalDateSelector *selector,
 
   gtk_entry_set_text (GTK_ENTRY (selector->entries[YEAR]), label);
 
-  /* emit the MODIFIED signal */
-  g_signal_emit (selector, signals[MODIFIED], 0);
+  /* Notify about the changed property */
+  g_object_notify (G_OBJECT (selector), "date");
 
   g_free (label);
   g_date_time_unref (dt);

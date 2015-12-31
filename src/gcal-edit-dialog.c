@@ -78,9 +78,6 @@ static void        on_calendar_selected                   (GtkWidget         *me
                                                            GVariant          *value,
                                                            gpointer           user_data);
 
-static void        update_date                            (GtkEntry          *entry,
-                                                           gpointer           user_data);
-
 static void        update_location                        (GtkEntry          *entry,
                                                            GParamSpec        *pspec,
                                                            gpointer           user_data);
@@ -220,28 +217,26 @@ on_calendar_selected (GtkWidget *menu_item,
 }
 
 static void
-update_date (GtkEntry   *entry,
-             gpointer    user_data)
+update_date (GcalDateSelector *selector,
+             GParamSpec       *pspec,
+             GcalEditDialog   *dialog)
 {
   ECalComponentDateTime dtstart;
   ECalComponentDateTime dtend;
-  GcalEditDialog *dialog;
   icaltimetype *start_date;
   icaltimetype *end_date;
-
-  dialog = GCAL_EDIT_DIALOG (user_data);
 
   if (dialog->setting_event)
     return;
 
-  start_date = gcal_edit_dialog_get_start_date (GCAL_EDIT_DIALOG (user_data));
-  end_date = gcal_edit_dialog_get_end_date (GCAL_EDIT_DIALOG (user_data));
+  start_date = gcal_edit_dialog_get_start_date (dialog);
+  end_date = gcal_edit_dialog_get_end_date (dialog);
 
   /* check if the start & end dates are sane */
   if (icaltime_compare (*start_date, *end_date) != -1)
     {
       /* change the non-editing entry */
-      if (GTK_WIDGET (entry) == dialog->start_date_selector)
+      if (GTK_WIDGET (selector) == dialog->start_date_selector)
         {
           end_date->day = start_date->day;
           end_date->month = start_date->month;
@@ -269,10 +264,10 @@ update_date (GtkEntry   *entry,
       /* update the entries with the new sane values */
       g_signal_handlers_block_by_func (dialog->start_date_selector,
                                        update_date,
-                                       user_data);
+                                       dialog);
       g_signal_handlers_block_by_func (dialog->end_date_selector,
                                        update_date,
-                                       user_data);
+                                       dialog);
 
       gcal_date_selector_set_date (GCAL_DATE_SELECTOR (dialog->start_date_selector),
                                    start_date->day,
@@ -285,10 +280,10 @@ update_date (GtkEntry   *entry,
 
       g_signal_handlers_unblock_by_func (dialog->start_date_selector,
                                          update_date,
-                                         user_data);
+                                         dialog);
       g_signal_handlers_unblock_by_func (dialog->end_date_selector,
                                          update_date,
-                                         user_data);
+                                         dialog);
     }
 
   /* update component */
