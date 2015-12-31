@@ -32,7 +32,7 @@ enum
   NUM_ENTRIES
 };
 
-struct _GcalDateSelectorPrivate
+typedef struct
 {
   /* widgets */
   GtkWidget   *date_label;
@@ -53,6 +53,11 @@ struct _GcalDateSelectorPrivate
   guint        day_pos;
   guint        month_pos;
   guint        year_pos;
+} GcalDateSelectorPrivate;
+
+struct _GcalDateSelector
+{
+  GtkMenuButton      parent;
 };
 
 enum
@@ -201,7 +206,7 @@ gcal_date_selector_class_init (GcalDateSelectorClass *klass)
   signals[MODIFIED] = g_signal_new ("modified",
                                     GCAL_TYPE_DATE_SELECTOR,
                                     G_SIGNAL_RUN_LAST,
-                                    G_STRUCT_OFFSET (GcalDateSelectorClass, modified),
+                                    0,
                                     NULL, NULL, NULL,
                                     G_TYPE_NONE, 0);
 
