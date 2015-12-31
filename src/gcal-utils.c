@@ -63,6 +63,63 @@ month_item[12] =
 
 G_DEFINE_BOXED_TYPE (icaltimetype, icaltime, gcal_dup_icaltime, g_free)
 
+GDateTime*
+icaltimetype_to_datetime (const icaltimetype *date)
+{
+  GDateTime *dt;
+  GTimeZone *tz;
+  gboolean is_date;
+
+  if (!date)
+    return NULL;
+
+  is_date = date->is_date ? TRUE : FALSE;
+
+
+  if (icaltime_get_tzid (*date))
+    tz = g_time_zone_new (icaltime_get_tzid (*date));
+  else
+    tz = g_time_zone_new_local ();
+
+  dt = g_date_time_new (tz,
+                        date->year,
+                        date->month,
+                        date->day,
+                        is_date ? date->hour : 0,
+                        is_date ? date->minute : 0,
+                        is_date ? date->second : 0.0);
+
+  g_time_zone_unref (tz);
+
+  return dt;
+}
+
+icaltimetype*
+datetime_to_icaltimetype (GDateTime *date)
+{
+  icaltimetype *new_date;
+  const gchar *tzid;
+
+  if (!date)
+    return NULL;
+
+  tzid = g_date_time_get_timezone_abbreviation (date);
+
+  new_date= g_new (icaltimetype, 1);
+  new_date->year = g_date_time_get_year (date);
+  new_date->month = g_date_time_get_month (date);
+  new_date->day = g_date_time_get_day_of_month (date);
+  new_date->hour = g_date_time_get_hour (date);
+  new_date->minute = g_date_time_get_minute (date);
+  new_date->second = g_date_time_get_second (date);
+  new_date->is_date = new_date->hour == 0 && new_date->minute == 0;
+  new_date->is_daylight = g_date_time_is_daylight_savings (date);
+  new_date->is_utc = g_strcmp0 (g_date_time_get_timezone_abbreviation (date), "UTC") == 0;
+  new_date->zone = icaltimezone_get_builtin_timezone_from_tzid (tzid);
+
+  return new_date;
+}
+
 icaltimetype*
 gcal_dup_icaltime (const icaltimetype *date)
 {
