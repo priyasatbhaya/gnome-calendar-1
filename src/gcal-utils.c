@@ -63,6 +63,17 @@ month_item[12] =
 
 G_DEFINE_BOXED_TYPE (icaltimetype, icaltime, gcal_dup_icaltime, g_free)
 
+gboolean
+datetime_is_date (GDateTime *date)
+{
+  if (!date)
+    return FALSE;
+
+  return g_date_time_get_hour (date) == 0 &&
+         g_date_time_get_minute (date) == 0 &&
+         g_date_time_get_second (date) == 0;
+}
+
 GDateTime*
 icaltimetype_to_datetime (const icaltimetype *date)
 {
