@@ -24,6 +24,7 @@
 #include <glib/gi18n.h>
 #include <math.h>
 #include <string.h>
+#include <libical/icaltime.h>
 
 #define NAVIGATOR_CELL_WIDTH (210 + 15)
 #define NAVIGATOR_CELL_HEIGHT 210
@@ -205,6 +206,7 @@ static void
 update_no_events_page (GcalYearView *year_view)
 {
   GcalYearViewPrivate *priv;
+  GDateTime *current_date, *start_selected_date;
 
   gchar *title;
   gboolean has_range;
@@ -213,7 +215,10 @@ update_no_events_page (GcalYearView *year_view)
   has_range = (priv->start_selected_date->day != priv->end_selected_date->day ||
                priv->start_selected_date->month != priv->end_selected_date->month);
 
-  if (icaltime_compare_date (priv->current_date, priv->start_selected_date) == 0)
+  current_date = icaltimetype_to_datetime (priv->current_date);
+  start_selected_date = icaltimetype_to_datetime (priv->start_selected_date);
+
+  if (datetime_compare_date (current_date, start_selected_date) == 0)
     {
       title = g_strdup_printf ("%s%s", _("Today"), has_range ? "…" : "");
     }
@@ -226,6 +231,8 @@ update_no_events_page (GcalYearView *year_view)
     }
 
   gtk_label_set_text (GTK_LABEL (priv->no_events_title), title);
+  g_clear_pointer (&start_selected_date, g_date_time_unref);
+  g_clear_pointer (&current_date, g_date_time_unref);
   g_free (title);
 }
 
@@ -238,8 +245,8 @@ add_event_to_day_array (GcalYearView  *year_view,
   GcalYearViewPrivate *priv;
   GtkWidget *child_widget;
 
-  const icaltimetype *dt_start, *dt_end;
-  icaltimetype date, second_date;
+  GDateTime *dt_start, *dt_end;
+  GDateTime *date, *second_date;
 
   gint i;
   gboolean child_widget_used = FALSE;
@@ -253,10 +260,13 @@ add_event_to_day_array (GcalYearView  *year_view,
   dt_end = gcal_event_widget_peek_end_date (GCAL_EVENT_WIDGET (child_widget));
 
   /* normalize date on each new event */
-  date = *(priv->start_selected_date);
-  second_date = *(priv->start_selected_date);
-  second_date.hour = 23;
-  second_date.minute = 59;
+  date = icaltimetype_to_datetime (priv->start_selected_date);
+  second_date = g_date_time_new_local (g_date_time_get_year (date),
+                                       g_date_time_get_month (date),
+                                       g_date_time_get_day_of_month (date),
+                                       23,
+                                       59,
+                                       0);
 
   /* marking and cloning */
   for (i = 0; i < days_span; i++)
@@ -266,11 +276,22 @@ add_event_to_day_array (GcalYearView  *year_view,
 
       if (i != 0)
         {
-          icaltime_adjust (&date, 1, 0, 0, 0);
-          icaltime_adjust (&second_date, 1, 0, 0, 0);
+          GDateTime *new_date;
+
+          /* Increase date */
+          new_date = g_date_time_add_days (date, 1);
+          g_clear_pointer (&date, g_date_time_unref);
+
+          date = new_date;
+
+          /* Increase second_date */
+          new_date = g_date_time_add_days (second_date, 1);
+          g_clear_pointer (&second_date, g_date_time_unref);
+
+          second_date = new_date;
         }
 
-      start_comparison = icaltime_compare_date (dt_start, &date);
+      start_comparison = datetime_compare_date (dt_start, date);
       if (start_comparison <= 0)
         {
           if (child_widget_used)
@@ -289,10 +310,14 @@ add_event_to_day_array (GcalYearView  *year_view,
                                                         cloned_child,
                                                         (GCompareFunc) gcal_event_widget_compare_for_single_day);
 
-          end_comparison = icaltime_compare_date (&second_date, dt_end);
+          end_comparison = datetime_compare_date (second_date, dt_end);
           /* XXX: hack ensuring allday events with end_date a day after */
-          if (end_comparison == -1 && second_date.year == dt_end->year && dt_end->is_date == 1)
-            end_comparison = 0;
+          if (end_comparison == -1 &&
+              g_date_time_get_year (second_date) == g_date_time_get_year (dt_end) &&
+              datetime_is_date (dt_end))
+            {
+              end_comparison = 0;
+            }
 
           if (start_comparison < 0 && end_comparison < 0)
             gtk_style_context_add_class (gtk_widget_get_style_context (cloned_child), "slanted");
@@ -305,6 +330,9 @@ add_event_to_day_array (GcalYearView  *year_view,
             break;
         }
     }
+
+  g_clear_pointer (&second_date, g_date_time_unref);
+  g_clear_pointer (&date, g_date_time_unref);
 }
 
 static void
@@ -374,8 +402,8 @@ update_sidebar_headers (GtkListBoxRow *row,
 {
   GcalYearViewPrivate *priv;
   GtkWidget *row_child, *before_child = NULL, *row_header = NULL;
-  const icaltimetype *row_date, *before_date = NULL;
-  icaltimetype date;
+  GDateTime *row_date, *before_date = NULL;
+  GDateTime *date;
   gint row_shift, before_shift =-1;
 
   priv = GCAL_YEAR_VIEW (user_data)->priv;
@@ -393,17 +421,31 @@ update_sidebar_headers (GtkListBoxRow *row,
 
   if (before_shift == -1 || before_shift != row_shift)
     {
+      GDateTime *current_date;
+      GDateTime *new_date;
       GtkWidget *label;
       gchar *label_str;
 
       row_header = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-      date = *(priv->start_selected_date);
-      icaltime_adjust (&date, row_shift, 0, 0, 0);
+      date = icaltimetype_to_datetime (priv->start_selected_date);
+      current_date = icaltimetype_to_datetime (priv->current_date);
 
-      if (icaltime_compare_date (&date, priv->current_date) == 0)
-        label_str = g_strdup (_("Today"));
+      /* Adjust date */
+      new_date = g_date_time_add_days (date, row_shift);
+      g_clear_pointer (&date, g_date_time_unref);
+
+      date = new_date;
+
+      if (datetime_compare_date (date, current_date) == 0)
+        {
+          label_str = g_strdup (_("Today"));
+        }
       else
-        label_str = g_strdup_printf ("%s %d", gcal_get_month_name (date.month  - 1), date.day);
+        {
+          label_str = g_strdup_printf ("%s %d",
+                                       gcal_get_month_name (g_date_time_get_month (date) - 1),
+                                       g_date_time_get_day_of_month (date));
+        }
 
       label = gtk_label_new (label_str);
       gtk_style_context_add_class (gtk_widget_get_style_context (label), "sidebar-header");
@@ -411,19 +453,24 @@ update_sidebar_headers (GtkListBoxRow *row,
       g_free (label_str);
 
       gtk_container_add (GTK_CONTAINER (row_header), label);
+
+      g_clear_pointer (&current_date, g_date_time_unref);
+      g_clear_pointer (&date, g_date_time_unref);
     }
 
   if (!gcal_event_widget_is_multiday (GCAL_EVENT_WIDGET (row_child)) &&
       !gcal_event_widget_get_all_day (GCAL_EVENT_WIDGET (row_child)) &&
-      (before_date == NULL || before_date->hour != row_date->hour))
+      (before_date == NULL || g_date_time_get_hour (before_date) != g_date_time_get_hour (row_date)))
     {
       gchar *time;
       GtkWidget *label;
 
       if (priv->use_24h_format)
-        time = g_strdup_printf ("%.2d:00", row_date->hour);
+        time = g_strdup_printf ("%.2d:00", g_date_time_get_hour (row_date));
       else
-        time = g_strdup_printf ("%.2d:00 %s", row_date->hour % 12, row_date->hour < 12 ? "AM" : "PM");
+        time = g_strdup_printf ("%.2d:00 %s",
+                                g_date_time_get_hour (row_date) % 12,
+                                g_date_time_get_hour (row_date) < 12 ? "AM" : "PM");
 
       label = gtk_label_new (time);
       gtk_style_context_add_class (gtk_widget_get_style_context (label), GTK_STYLE_CLASS_DIM_LABEL);

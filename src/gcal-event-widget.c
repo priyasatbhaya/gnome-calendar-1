@@ -30,8 +30,8 @@ struct _GcalEventWidget
   gchar         *uuid;
   gchar         *summary;
   GdkRGBA       *color;
-  icaltimetype  *dt_start;
-  icaltimetype  *dt_end; /* could be NULL, meaning dt_end is the same as start_date */
+  GDateTime     *dt_start;
+  GDateTime     *dt_end; /* could be NULL, meaning dt_end is the same as start_date */
   gboolean       all_day;
   gboolean       has_reminders;
 
@@ -164,7 +164,7 @@ gcal_event_widget_class_init(GcalEventWidgetClass *klass)
                                    g_param_spec_boxed ("date-start",
                                                        "Date Start",
                                                        "The starting date of the event",
-                                                       ICAL_TIME_TYPE,
+                                                       G_TYPE_DATE_TIME,
                                                        G_PARAM_CONSTRUCT |
                                                        G_PARAM_READWRITE));
 
@@ -173,7 +173,7 @@ gcal_event_widget_class_init(GcalEventWidgetClass *klass)
                                    g_param_spec_boxed ("date-end",
                                                        "Date End",
                                                        "The end date of the event",
-                                                       ICAL_TIME_TYPE,
+                                                       G_TYPE_DATE_TIME,
                                                        G_PARAM_CONSTRUCT |
                                                        G_PARAM_READWRITE));
 
@@ -288,7 +288,7 @@ gcal_event_widget_set_property (GObject      *object,
       if (self->has_reminders != g_value_get_boolean (value))
         {
           self->has_reminders = g_value_get_boolean (value);
-          g_object_notify (object, "has-reminder");
+          g_object_notify (object, "has-reminders");
         }
       break;
 
@@ -343,8 +343,8 @@ gcal_event_widget_finalize (GObject *object)
   /* releasing properties */
   g_clear_pointer (&self->uuid, g_free);
   g_clear_pointer (&self->summary, g_free);
-  g_clear_pointer (&self->dt_start, g_free);
-  g_clear_pointer (&self->dt_end, g_free);
+  g_clear_pointer (&self->dt_start, g_date_time_unref);
+  g_clear_pointer (&self->dt_end, g_date_time_unref);
   g_clear_pointer (&self->color, gdk_rgba_free);
 
   G_OBJECT_CLASS (gcal_event_widget_parent_class)->finalize (object);
@@ -678,7 +678,7 @@ gcal_event_widget_new_from_data (GcalEventData *data)
   gchar *color_str, *custom_css_class;
 
   ECalComponentDateTime dt;
-  icaltimetype *date;
+  GDateTime *date;
   gboolean start_is_date, end_is_date;
 
   id = e_cal_component_get_id (data->event_component);
@@ -720,39 +720,49 @@ gcal_event_widget_new_from_data (GcalEventData *data)
 
   /* start date */
   e_cal_component_get_dtstart (event->component, &dt);
-  date = gcal_dup_icaltime (dt.value);
+  date = icaltimetype_to_datetime (dt.value);
 
-  start_is_date = date->is_date == 1;
+  start_is_date = datetime_is_date (date);
   if (!start_is_date)
     {
-      if (dt.tzid != NULL)
-        dt.value->zone = icaltimezone_get_builtin_timezone_from_tzid (dt.tzid);
-      *date = icaltime_convert_to_zone (*(dt.value),
-                                        e_cal_util_get_system_timezone ());
+      GTimeZone *tz;
+      GDateTime *tz_date;
+
+      tz = g_time_zone_new (dt.tzid);
+      tz_date = g_date_time_to_timezone (date, tz);
+
+      g_clear_pointer (&date, g_date_time_unref);
+
+      date = tz_date;
     }
 
   gcal_event_widget_set_date (event, date);
   e_cal_component_free_datetime (&dt);
-  g_free (date);
+  g_clear_pointer (&date, g_date_time_unref);
 
   /* end date */
   e_cal_component_get_dtend (event->component, &dt);
   if (dt.value != NULL)
     {
-      date = gcal_dup_icaltime (dt.value);
+      date = icaltimetype_to_datetime (dt.value);
 
-      end_is_date = date->is_date == 1;
+      end_is_date = datetime_is_date (date);
       if (!end_is_date)
         {
-          if (dt.tzid != NULL)
-            dt.value->zone = icaltimezone_get_builtin_timezone_from_tzid (dt.tzid);
-          *date = icaltime_convert_to_zone (*(dt.value),
-                                            e_cal_util_get_system_timezone ());
+          GTimeZone *tz;
+          GDateTime *tz_date;
+
+          tz = g_time_zone_new (dt.tzid);
+          tz_date = g_date_time_to_timezone (date, tz);
+
+          g_clear_pointer (&date, g_date_time_unref);
+
+          date = tz_date;
         }
 
       gcal_event_widget_set_end_date (event, date);
       e_cal_component_free_datetime (&dt);
-      g_free (date);
+      g_clear_pointer (&date, g_date_time_unref);
 
       /* set_all_day */
       gcal_event_widget_set_all_day (event, start_is_date && end_is_date);
@@ -822,13 +832,13 @@ gcal_event_widget_get_read_only (GcalEventWidget *event)
 /**
  * gcal_event_widget_set_date:
  * @event: a #GcalEventWidget
- * @date: a #icaltimetype object with the date
+ * @date: a #GDateTime object with the date
  *
  * Set the start-date of the event
  **/
 void
-gcal_event_widget_set_date (GcalEventWidget    *event,
-                            const icaltimetype *date)
+gcal_event_widget_set_date (GcalEventWidget *event,
+                            GDateTime       *date)
 {
   g_object_set (event, "date-start", date, NULL);
 }
@@ -841,10 +851,10 @@ gcal_event_widget_set_date (GcalEventWidget    *event,
  *
  * Returns: (transfer full): Release with g_free()
  **/
-icaltimetype*
+GDateTime*
 gcal_event_widget_get_date (GcalEventWidget *event)
 {
-  icaltimetype *dt;
+  GDateTime *dt;
 
   g_object_get (event, "date-start", &dt, NULL);
   return dt;
@@ -856,9 +866,9 @@ gcal_event_widget_get_date (GcalEventWidget *event)
  *
  * Return the starting date of the event.
  *
- * Returns: (Transfer none): An {@link icaltimetype} instance
+ * Returns: (Transfer none): An #GDateTimeinstance
  **/
-const icaltimetype*
+GDateTime*
 gcal_event_widget_peek_start_date (GcalEventWidget *event)
 {
   g_return_val_if_fail (GCAL_IS_EVENT_WIDGET (event), NULL);
@@ -869,13 +879,13 @@ gcal_event_widget_peek_start_date (GcalEventWidget *event)
 /**
  * gcal_event_widget_set_end_date:
  * @event: a #GcalEventWidget
- * @date: a #icaltimetype object with the date
+ * @date: a #GDateTime object with the date
  *
  * Set the end date of the event
  **/
 void
-gcal_event_widget_set_end_date (GcalEventWidget    *event,
-                                const icaltimetype *date)
+gcal_event_widget_set_end_date (GcalEventWidget *event,
+                                GDateTime       *date)
 {
   g_object_set (event, "date-end", date, NULL);
 }
@@ -889,10 +899,10 @@ gcal_event_widget_set_end_date (GcalEventWidget    *event,
  *
  * Returns: (transfer full): Release with g_free()
  **/
-icaltimetype*
+GDateTime*
 gcal_event_widget_get_end_date (GcalEventWidget *event)
 {
-  icaltimetype *dt;
+  GDateTime *dt;
 
   g_object_get (event, "date-end", &dt, NULL);
   return dt;
@@ -904,9 +914,9 @@ gcal_event_widget_get_end_date (GcalEventWidget *event)
  *
  * Return the end date of the event.
  *
- * Returns: (Transfer none): An {@link icaltimetype} instance
+ * Returns: (Transfer none): A #GDateTime instance
  **/
-const icaltimetype*
+GDateTime*
 gcal_event_widget_peek_end_date (GcalEventWidget *event)
 {
   g_return_val_if_fail (GCAL_IS_EVENT_WIDGET (event), NULL);
@@ -973,20 +983,31 @@ gcal_event_widget_get_all_day (GcalEventWidget *event)
 gboolean
 gcal_event_widget_is_multiday (GcalEventWidget *event)
 {
+  GDateTime *year_forward;
+  guint days_in_year;
   gint start_day_of_year, end_day_of_year;
 
   if (event->dt_end == NULL)
     return FALSE;
 
-  start_day_of_year = icaltime_day_of_year (*(event->dt_start));
-  end_day_of_year = icaltime_day_of_year (*(event->dt_end));
+  /* Calculates the number of days in the event's start date year */
+  year_forward = g_date_time_add_years (event->dt_start, 1);
+  days_in_year = g_date_time_difference (event->dt_start, year_forward) / G_TIME_SPAN_DAY;
+  g_clear_pointer (&year_forward, g_date_time_unref);
+
+  start_day_of_year = g_date_time_get_day_of_year (event->dt_start);
+  end_day_of_year = g_date_time_get_day_of_year (event->dt_end);
 
   if (event->all_day && start_day_of_year + 1 == end_day_of_year)
     return FALSE;
 
-  if (event->all_day && start_day_of_year == icaltime_days_in_year (event->dt_start->year) && end_day_of_year == 1 &&
-      event->dt_start->year + 1 == event->dt_end->year)
-    return FALSE;
+  if (event->all_day &&
+      start_day_of_year == days_in_year &&
+      end_day_of_year == 1 &&
+      g_date_time_get_year (event->dt_start) + 1 == g_date_time_get_year (event->dt_end))
+    {
+      return FALSE;
+    }
 
   return start_day_of_year != end_day_of_year;
 }
@@ -1078,25 +1099,25 @@ gint
 gcal_event_widget_compare_by_length (GcalEventWidget *widget1,
                                      GcalEventWidget *widget2)
 {
-  time_t time_s1, time_s2;
-  time_t time_e1, time_e2;
+  GDateTime *start1, *start2;
+  GDateTime *end1, *end2;
 
-  time_e1 = time_s1 = icaltime_as_timet (*(widget1->dt_start));
-  time_e2 = time_s2 = icaltime_as_timet (*(widget2->dt_start));
+  start1 = end1 = widget1->dt_start;
+  start2 = end2 = widget2->dt_start;
 
-  if (widget1->dt_end != NULL)
-    time_e1 = icaltime_as_timet (*(widget1->dt_end));
+  if (widget1->dt_end)
+    end1 = widget1->dt_end;
   if (widget2->dt_end)
-    time_e2 = icaltime_as_timet (*(widget2->dt_end));
+    end2 = widget2->dt_end;
 
-  return (time_e2 - time_s2) - (time_e1 - time_s1);
+  return g_date_time_difference (start2, end2) - g_date_time_difference (start1, end1);
 }
 
 gint
 gcal_event_widget_compare_by_start_date (GcalEventWidget *widget1,
                                          GcalEventWidget *widget2)
 {
-  return icaltime_compare (*(widget1->dt_start), *(widget2->dt_start));
+  return g_date_time_compare (widget1->dt_start, widget2->dt_start);
 }
 
 /**
@@ -1115,20 +1136,14 @@ gcal_event_widget_compare_for_single_day (GcalEventWidget *widget1,
 {
   if (gcal_event_widget_is_multiday (widget1) && gcal_event_widget_is_multiday (widget2))
     {
-      time_t time_s1, time_s2;
-      time_t time_e1, time_e2;
-      time_t result;
+      gint result;
 
-      time_s1 = icaltime_as_timet (*(widget1->dt_start));
-      time_s2 = icaltime_as_timet (*(widget2->dt_start));
-      time_e1 = icaltime_as_timet (*(widget1->dt_end));
-      time_e2 = icaltime_as_timet (*(widget2->dt_end));
+      result = gcal_event_widget_compare_by_length (widget1, widget2);
 
-      result = (time_e2 - time_s2) - (time_e1 - time_s1);
       if (result != 0)
         return result;
       else
-        return icaltime_compare (*(widget1->dt_start), *(widget2->dt_start));
+        return g_date_time_compare (widget1->dt_start, widget2->dt_start);
     }
   else
     {
@@ -1145,7 +1160,7 @@ gcal_event_widget_compare_for_single_day (GcalEventWidget *widget1,
           else if (widget2->all_day)
             return 1;
           else
-            return icaltime_compare (*(widget1->dt_start), *(widget2->dt_start));
+            return g_date_time_compare (widget1->dt_start, widget2->dt_start);
         }
     }
 }

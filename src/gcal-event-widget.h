@@ -24,8 +24,6 @@
 
 #include <gtk/gtk.h>
 
-#include <libical/icaltime.h>
-
 G_BEGIN_DECLS
 
 
@@ -50,18 +48,18 @@ void          gcal_event_widget_set_read_only              (GcalEventWidget    *
 gboolean      gcal_event_widget_get_read_only              (GcalEventWidget    *event);
 
 void          gcal_event_widget_set_date                   (GcalEventWidget    *event,
-                                                            const icaltimetype *date);
+                                                            GDateTime          *date);
 
-icaltimetype* gcal_event_widget_get_date                   (GcalEventWidget    *event);
+GDateTime*    gcal_event_widget_get_date                   (GcalEventWidget    *event);
 
-const icaltimetype* gcal_event_widget_peek_start_date            (GcalEventWidget    *event);
+GDateTime*    gcal_event_widget_peek_start_date            (GcalEventWidget    *event);
 
 void          gcal_event_widget_set_end_date               (GcalEventWidget    *event,
-                                                            const icaltimetype *date);
+                                                            GDateTime          *date);
 
-icaltimetype* gcal_event_widget_get_end_date               (GcalEventWidget    *event);
+GDateTime*    gcal_event_widget_get_end_date               (GcalEventWidget    *event);
 
-const icaltimetype* gcal_event_widget_peek_end_date              (GcalEventWidget    *event);
+GDateTime*    gcal_event_widget_peek_end_date              (GcalEventWidget    *event);
 
 void          gcal_event_widget_set_summary                (GcalEventWidget    *event,
                                                             gchar              *summary);
