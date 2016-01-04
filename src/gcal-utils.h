@@ -88,8 +88,8 @@ ECalComponent*  build_component_from_details                    (const gchar    
                                                                  const icaltimetype    *initial_date,
                                                                  const icaltimetype    *final_date);
 
-gint            icaltime_compare_date                           (const icaltimetype    *date1,
-                                                                 const icaltimetype    *date2);
+gint            datetime_compare_date                           (GDateTime             *date1,
+                                                                 GDateTime             *date2);
 
 gint            icaltime_compare_with_current                   (const icaltimetype    *date1,
                                                                  const icaltimetype    *date2,

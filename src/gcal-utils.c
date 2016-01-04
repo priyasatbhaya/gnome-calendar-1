@@ -246,8 +246,8 @@ gcal_compare_event_widget_by_date (gconstpointer a,
   /* negative value if a < b; zero if a = b; positive value if a > b. */
   GcalViewChild *a_child;
   GcalViewChild *b_child;
-  icaltimetype *a_date;
-  icaltimetype *b_date;
+  GDateTime *a_date;
+  GDateTime *b_date;
 
   gint comparison;
 
@@ -259,7 +259,7 @@ gcal_compare_event_widget_by_date (gconstpointer a,
   b_date =
     gcal_event_widget_get_date (GCAL_EVENT_WIDGET (b_child->widget));
 
-  comparison = icaltime_compare (*a_date, *b_date);
+  comparison = g_date_time_compare (a_date, b_date);
   g_free (a_date);
   g_free (b_date);
 
@@ -454,7 +454,7 @@ build_component_from_details (const gchar        *summary,
 }
 
 /**
- * icaltime_compare_date:
+ * datetime_compare_date:
  * @date1:
  * @date2:
  *
@@ -465,19 +465,24 @@ build_component_from_details (const gchar        *summary,
  * Returns: negative, 0 or positive
  **/
 gint
-icaltime_compare_date (const icaltimetype *date1,
-                       const icaltimetype *date2)
+datetime_compare_date (GDateTime *date1,
+                       GDateTime *date2)
 {
+  gint year1, year2;
+
   if (date2 == NULL)
     return 0;
 
-  if (date1->year < date2->year)
+  year1 = g_date_time_get_year (date1);
+  year2 = g_date_time_get_year (date2);
+
+  if (year1 < year2)
     return -1;
-  else if (date1->year > date2->year)
+  else if (year1 > year2)
     return 1;
   else
-    return time_day_of_year (date1->day, date1->month - 1, date1->year) -
-           time_day_of_year (date2->day, date2->month - 1, date2->year);
+    return time_day_of_year (g_date_time_get_day_of_month (date1), g_date_time_get_month (date1) - 1, year1) -
+           time_day_of_year (g_date_time_get_day_of_month (date2), g_date_time_get_month (date2) - 1, year2);
 }
 
 gint
